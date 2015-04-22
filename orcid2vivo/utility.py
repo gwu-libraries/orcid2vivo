@@ -1,6 +1,7 @@
 from rdflib import RDF, RDFS, XSD, Literal
 from vivo_namespace import VIVO
 from numbers import Number
+from SPARQLWrapper import SPARQLWrapper
 
 
 def num_to_str(num):
@@ -121,3 +122,25 @@ def add_date_interval(interval_uri, subject_uri, g, start_uri=None, end_uri=None
             g.add((interval_uri, VIVO.start, start_uri))
         if end_uri:
             g.add((interval_uri, VIVO.end, end_uri))
+
+
+def sparql_insert(graph, endpoint, username, password):
+    #Need to construct query
+    ns_lines = []
+    triple_lines = []
+    for line in graph.serialize(format="turtle").splitlines():
+        if line.startswith("@prefix"):
+            #Change from @prefix to PREFIX
+            ns_lines.append("PREFIX" + line[7:-2])
+        else:
+            triple_lines.append(line)
+    query = "\n".join(ns_lines)
+    query += "\nINSERT DATA { GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> {\n"
+    query += "\n".join(triple_lines)
+    query += "\n}}"
+    sparql = SPARQLWrapper(endpoint)
+    sparql.addParameter("email", username)
+    sparql.addParameter("password", password)
+    sparql.setQuery(query)
+    sparql.setMethod("POST")
+    sparql.query()

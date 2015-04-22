@@ -2,7 +2,7 @@ from rdflib.namespace import Namespace, NamespaceManager
 from rdflib import Graph
 
 #Our data namespace
-D = Namespace('http://vivo.gwu.edu/individual/')
+D = Namespace('http://vivo.mydomain.edu/individual/')
 #The VIVO namespace
 VIVO = Namespace('http://vivoweb.org/ontology/core#')
 #The VCARD namespace

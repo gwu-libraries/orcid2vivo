@@ -1,7 +1,8 @@
 import requests
 from vivo_uri import to_hash_identifier, PREFIX_DOCUMENT, PREFIX_PERSON, PREFIX_ORGANIZATION, PREFIX_JOURNAL
 from rdflib import RDFS, RDF, XSD, Literal
-from vivo_namespace import D, VIVO, VCARD, OBO, BIBO, FOAF, SKOS
+from vivo_namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS
+import orcid2vivo.vivo_namespace as ns
 from utility import join_if_not_empty
 import re
 import bibtexparser
@@ -32,7 +33,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         #Title
         title = work["work-title"]["title"]["value"]
 
-        work_uri = D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
+        work_uri = ns.D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
 
         #Publication date
         (publication_year, publication_month, publication_day) = _get_doi_publication_date(doi_record) \
@@ -60,7 +61,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         if authors:
             for (first_name, surname) in authors:
                 if not person_surname.lower() == surname.lower():
-                    author_uri = D[to_hash_identifier(PREFIX_PERSON, (first_name, surname))]
+                    author_uri = ns.D[to_hash_identifier(PREFIX_PERSON, (first_name, surname))]
                     graph.add((author_uri, RDF.type, FOAF.Person))
                     full_name = join_if_not_empty((first_name, surname))
                     graph.add((author_uri, RDFS.label, Literal(full_name)))
@@ -77,7 +78,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         #Subjects
         if subjects:
             for subject in subjects:
-                subject_uri = D[to_hash_identifier("sub", (subject,))]
+                subject_uri = ns.D[to_hash_identifier("sub", (subject,))]
                 graph.add((work_uri, VIVO.hasSubjectArea, subject_uri))
                 graph.add((subject_uri, RDF.type, SKOS.Concept))
                 graph.add((subject_uri, RDFS.label, Literal(subject)))
@@ -86,7 +87,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
             graph.add((work_uri, BIBO.doi, Literal(doi)))
             #Also add as a website
             identifier_url = "http://dx.doi.org/%s" % doi
-            vcard_uri = D[to_hash_identifier("vcard", (identifier_url,))]
+            vcard_uri = ns.D[to_hash_identifier("vcard", (identifier_url,))]
             graph.add((vcard_uri, RDF.type, VCARD.Kind))
             #Has contact info
             graph.add((work_uri, OBO.ARG_2000028, vcard_uri))
@@ -98,7 +99,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
 
         #Publisher
         if publisher:
-            publisher_uri = D[to_hash_identifier(PREFIX_ORGANIZATION, (publisher,))]
+            publisher_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (publisher,))]
             graph.add((publisher_uri, RDF.type, FOAF.Organization))
             graph.add((publisher_uri, RDFS.label, Literal(publisher)))
             graph.add((work_uri, VIVO.publisher, publisher_uri))
@@ -123,7 +124,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
             graph.add((work_uri, RDF.type, BIBO.AcademicArticle))
             #Journal
             if journal:
-                journal_uri = D[to_hash_identifier(PREFIX_JOURNAL, (BIBO.Journal, journal))]
+                journal_uri = ns.D[to_hash_identifier(PREFIX_JOURNAL, (BIBO.Journal, journal))]
                 graph.add((journal_uri, RDF.type, BIBO.Journal))
                 graph.add((journal_uri, RDFS.label, Literal(journal)))
                 graph.add((work_uri, VIVO.hasPublicationVenue, journal_uri))

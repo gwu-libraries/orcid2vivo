@@ -1,8 +1,11 @@
 from vivo_namespace import VIVO, OBO
 from rdflib import RDFS, RDF, Literal
-from vivo_namespace import D, FOAF
+from vivo_namespace import FOAF
 from vivo_uri import to_hash_identifier, PREFIX_ORGANIZATION, PREFIX_AWARDED_DEGREE, PREFIX_DEGREE
 from utility import add_date, add_date_interval
+import orcid2vivo.vivo_namespace as ns
+
+
 
 def crosswalk_affiliations(orcid_profile, person_uri, graph):
     #Education
@@ -11,13 +14,13 @@ def crosswalk_affiliations(orcid_profile, person_uri, graph):
         if affiliation["type"] == "EDUCATION":
             #Organization
             organization_name=affiliation["organization"]["name"]
-            organization_uri = D[to_hash_identifier(PREFIX_ORGANIZATION, (organization_name,))]
+            organization_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (organization_name,))]
             graph.add((organization_uri, RDF.type, FOAF.Organization))
             graph.add((organization_uri, RDFS.label, Literal(organization_name)))
             if "address" in affiliation["organization"]:
                 city = affiliation["organization"]["address"]["city"]
                 state = affiliation["organization"]["address"]["region"]
-            address_uri = D[to_hash_identifier("geo", (city, state))]
+            address_uri = ns.D[to_hash_identifier("geo", (city, state))]
             graph.add((address_uri, RDF.type, VIVO.GeographicLocation))
             graph.add((organization_uri, OBO.RO_0001025, address_uri))
             graph.add((address_uri, RDFS.label, Literal("%s, %s" % (city, state))))
@@ -25,7 +28,8 @@ def crosswalk_affiliations(orcid_profile, person_uri, graph):
             degree_name = affiliation["role-title"]
 
             #Awarded degree
-            awarded_degree_uri = D[to_hash_identifier(PREFIX_AWARDED_DEGREE, (person_uri, organization_uri, degree_name))]
+            awarded_degree_uri = ns.D[to_hash_identifier(PREFIX_AWARDED_DEGREE, (person_uri,
+                                                                                 organization_uri, degree_name))]
             graph.add((awarded_degree_uri, RDF.type, VIVO.AwardedDegree))
             graph.add((awarded_degree_uri, RDFS.label, Literal(degree_name)))
 
@@ -33,7 +37,7 @@ def crosswalk_affiliations(orcid_profile, person_uri, graph):
             graph.add((awarded_degree_uri, VIVO.assignedBy, organization_uri))
 
             #Relates to degree
-            degree_uri = D[to_hash_identifier(PREFIX_DEGREE, (degree_name,))]
+            degree_uri = ns.D[to_hash_identifier(PREFIX_DEGREE, (degree_name,))]
             graph.add((degree_uri, RDF.type, VIVO.AcademicDegree))
             graph.add((degree_uri, RDFS.label, Literal(degree_name)))
             graph.add((awarded_degree_uri, VIVO.relates, degree_uri))

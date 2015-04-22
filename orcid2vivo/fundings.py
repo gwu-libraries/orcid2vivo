@@ -1,4 +1,5 @@
-from vivo_namespace import D, VIVO, OBO, FOAF, VCARD
+from vivo_namespace import VIVO, OBO, FOAF, VCARD
+import orcid2vivo.vivo_namespace as ns
 from vivo_uri import to_hash_identifier, PREFIX_GRANT, PREFIX_ORGANIZATION
 from rdflib import RDF, RDFS, XSD, Literal
 from utility import add_date, add_date_interval
@@ -11,7 +12,7 @@ def crosswalk_funding(orcid_profile, person_uri, graph):
         if funding["funding-type"] == "GRANT":
 
             title = funding["funding-title"]["title"]["value"]
-            grant_uri = D[to_hash_identifier(PREFIX_GRANT, (title,))]
+            grant_uri = ns.D[to_hash_identifier(PREFIX_GRANT, (title,))]
             #Type
             graph.add((grant_uri, RDF.type, VIVO.Grant))
 
@@ -65,7 +66,7 @@ def crosswalk_funding(orcid_profile, person_uri, graph):
             #Awarded by
             if "organization" in funding:
                 organization_name = funding["organization"]["name"]
-                organization_uri = D[to_hash_identifier(PREFIX_ORGANIZATION, (organization_name,))]
+                organization_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (organization_name,))]
                 graph.add((organization_uri, RDF.type, FOAF.Organization))
                 graph.add((organization_uri, RDFS.label, Literal(organization_name)))
                 graph.add((grant_uri, VIVO.assignedBy, organization_uri))
@@ -78,7 +79,7 @@ def crosswalk_funding(orcid_profile, person_uri, graph):
                                VIVO.sponsorAwardId, Literal(external_identifier["funding-external-identifier-value"])))
                     if "funding-external-identifier-url" in external_identifier:
                         identifier_url = external_identifier["funding-external-identifier-url"]["value"]
-                        vcard_uri = D[to_hash_identifier("vcard", (identifier_url,))]
+                        vcard_uri = ns.D[to_hash_identifier("vcard", (identifier_url,))]
                         graph.add((vcard_uri, RDF.type, VCARD.Kind))
                         #Has contact info
                         graph.add((grant_uri, OBO.ARG_2000028, vcard_uri))
