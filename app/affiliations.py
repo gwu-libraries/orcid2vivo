@@ -3,8 +3,7 @@ from rdflib import RDFS, RDF, Literal
 from vivo_namespace import FOAF
 from vivo_uri import to_hash_identifier, PREFIX_ORGANIZATION, PREFIX_AWARDED_DEGREE, PREFIX_DEGREE
 from utility import add_date, add_date_interval
-import orcid2vivo.vivo_namespace as ns
-
+import app.vivo_namespace as ns
 
 
 def crosswalk_affiliations(orcid_profile, person_uri, graph):
@@ -53,9 +52,8 @@ def crosswalk_affiliations(orcid_profile, person_uri, graph):
             graph.add((educational_process_uri, OBO.RO_0000057, organization_uri))
             graph.add((educational_process_uri, OBO.RO_0000057, person_uri))
             #Department
-            department_name = affiliation["department-name"]
-            if department_name:
-                graph.add((educational_process_uri, VIVO.departmentOrSchool, Literal(department_name)))
+            if "department-name" in affiliation:
+                graph.add((educational_process_uri, VIVO.departmentOrSchool, Literal(affiliation["department-name"])))
 
             #Interval
             interval_uri = educational_process_uri + "-interval"

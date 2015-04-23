@@ -1,5 +1,5 @@
 from vivo_namespace import VIVO, OBO, FOAF, VCARD
-import orcid2vivo.vivo_namespace as ns
+import app.vivo_namespace as ns
 from vivo_uri import to_hash_identifier, PREFIX_GRANT, PREFIX_ORGANIZATION
 from rdflib import RDF, RDFS, XSD, Literal
 from utility import add_date, add_date_interval

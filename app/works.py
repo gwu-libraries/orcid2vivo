@@ -2,7 +2,7 @@ import requests
 from vivo_uri import to_hash_identifier, PREFIX_DOCUMENT, PREFIX_PERSON, PREFIX_ORGANIZATION, PREFIX_JOURNAL
 from rdflib import RDFS, RDF, XSD, Literal
 from vivo_namespace import VIVO, VCARD, OBO, BIBO, FOAF, SKOS
-import orcid2vivo.vivo_namespace as ns
+import app.vivo_namespace as ns
 from utility import join_if_not_empty
 import re
 import bibtexparser

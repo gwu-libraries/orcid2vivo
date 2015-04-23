@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">    <title>Orcid to VIVO</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+      <h1>Orcid to VIVO service <small>proof of concept</small></h1>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-info" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if rdf %}
+        <pre class="pre-scrollable">{{ rdf }}</pre>
+    {% endif %}
+
+    <form class="form-horizontal" action="/" method="POST">
+        <div class="form-group">
+            <label for="orcid_id" class="col-sm-2 control-label">Orcid Id</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="orcid_id" name="orcid_id" required placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]">
+            </div>
+        </div>
+        <br />
+        <div class="form-group">
+            <div class="col-sm-offset-2">
+                <input type="radio" name="output" id="output1" value="serialize" {% if output == 'serialized' %} checked {% endif %}/>
+                <label for="output1" class="control-label">Crosswalk to RDF</label>
+            </div>
+        </div>
+        <fieldset class="col-sm-offset-2">
+            <div class="form-group">
+                <label for="format" class="col-sm-2 control-label">Format:</label>
+                <div class="col-sm-4">
+                    <select class="form-control" name="format" id="format">
+                        <option value="xml" {% if format == 'xml' %} selected {% endif %}>xml</option>
+                        <option value="n3" {% if format == 'n3' %} selected {% endif %}>n3</option>
+                        <option value="turtle" {% if format == 'turtle' %} selected {% endif %}>turtle</option>
+                        <option value="nt" {% if format == 'nt' %} selected {% endif %}>nt</option>
+                        <option value="pretty-xml" {% if format == 'pretty-xml' %} selected {% endif %}>pretty xml</option>
+                        <option value="trix" {% if format == 'trix' %} selected {% endif %}>trix</option>
+                    </select>
+                </div>
+            </div>
+            <div class="checkbox col-sm-offset-2">
+                <label>
+                    <input type="checkbox" name="output_html" {% if output_html %} checked {% endif %}>Output as html.
+                </label>
+            </div>
+        </fieldset>
+        <div class="form-group">
+            <div class="col-sm-offset-2">
+                <input type="radio" name="output" id="output2" value="vivo" {% if output == 'vivo' %} checked {% endif %}/>
+                <label for="output2" class="control-label">Crosswalk to VIVO</label>
+            </div>
+
+        </div>
+        <fieldset class="col-sm-offset-2">
+            <div class="form-group">
+                <label for="endpoint" class="col-sm-2 control-label">SPARQL Update endpoint:</label>
+                <div class="col-sm-6">
+                    <input type="url" class="form-control" id="endpoint" name="endpoint" value="{{ endpoint if endpoint != None }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="username" class="col-sm-2 control-label">Username:</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="username" name="username" value="{{ username if username != None }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">Password:</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" id="password" name="password" value="{{ password if password != None }}">
+                </div>
+            </div>
+        </fieldset>
+        <br />
+        <div class="form-group">
+            <label for="person_id" class="col-sm-2 control-label">Person ID:</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="person_id" name="person_id" value="{{ person_id if person_id != None }}">
+                <p class="help-block">If an id is not provided, the Orcid Id will be used.</p>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <label for="namespace" class="col-sm-2 control-label">Namespace:</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="namespace" name="namespace" value="{{ namespace if namespace != None }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="person_class" class="col-sm-2 control-label">Person class:</label>
+            <div class="col-sm-4">
+                <select class="form-control" name="person_class" id="person_class">
+                    <option value="Person" {% if person_class == 'Person' %} selected {% endif %}>Person</option>
+                    <option value="FacultyMember" {% if person_class == 'FacultyMember' %} selected {% endif %}>Faculty Member</option>
+                    <option value="FacultyMemberEmeritus" {% if person_class == 'FacultyMemberEmeritus' %} selected {% endif %}>Faculty Member Emeritus</option>
+                    <option value="Librarian" {% if person_class == 'Librarian' %} selected {% endif %}>Librarian</option>
+                    <option value="LibrarianEmeritus" {% if person_class == 'LibrarianEmeritus' %} selected {% endif %}>Librarian Emeritus</option>
+                    <option value="NonAcademic" {% if person_class == 'NonAcademic' %} selected {% endif %}>Non-Academic</option>
+                    <option value="NonFacultyAcademic" {% if person_class == 'NonFacultyAcademic' %} selected {% endif %}>Non-Faculty Academic</option>
+                    <option value="ProfessorEmeritus" {% if person_class == 'ProfessorEmeritus' %} selected {% endif %}>Professor Emeritus</option>
+                    <option value="Student" {% if person_class == 'Student' %} selected {% endif %}>Student</option>
+                </select>
+            </div>
+        </div>
+        <div class="checkbox col-sm-offset-2">
+            <label>
+                <input type="checkbox" name="skip_person" {% if skip_person %} checked {% endif %}>Skip adding triples declaring person and person's name.
+            </label>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2">
+                <button type="submit" class="btn btn-default">Submit</button>
+                <p class="help-block">Be patient.</p>
+            </div>
+        </div>
+    </form>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+</div>
+</body>
+</html>
