@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, session, Response, flash
 import argparse
+import json
 import orcid2vivo
 import app.utility as utility
 
 app = Flask(__name__)
+def_format = None
 def_endpoint = None
 def_username = None
 def_password = None
@@ -12,6 +14,7 @@ def_person_class = "Person"
 def_skip_person = False
 def_output = "serialize"
 def_output_html = True
+def_output_profile = False
 
 content_types = {
     "xml": "application/rdf+xml",
@@ -23,8 +26,9 @@ content_types = {
 }
 
 @app.route('/', methods=["GET"])
-def crosswalk_form(rdf=None):
+def crosswalk_form(rdf=None, orcid_profile=None):
     return render_template("crosswalk_form.html",
+                           format=session.get("format") or def_format,
                            endpoint=session.get("endpoint") or def_endpoint,
                            username=session.get("username") or def_username,
                            password=session.get("password") or def_password,
@@ -33,22 +37,26 @@ def crosswalk_form(rdf=None):
                            skip_person=session.get("skip_person") or def_skip_person,
                            output=session.get("output") or def_output,
                            output_html=session.get("output_html") or def_output_html,
-                           rdf=rdf)
+                           output_profile=session.get("output_profile") or def_output_profile,
+                           rdf=rdf,
+                           orcid_profile=json.dumps(orcid_profile, indent=3) if orcid_profile else None)
 
 @app.route('/', methods=["POST"])
 def crosswalk():
-    person_class = request.form.get("person_class")
+    session["format"] = request.form.get("format")
     session["endpoint"] = request.form.get("endpoint")
     session["username"] = request.form.get("username")
     session["password"] = request.form.get("password")
+    person_class = request.form.get("person_class")
     session["person_class"] = person_class
     session["skip_person"] = True if "skip_person" in request.form else False
     session["output"] = request.form.get("output")
     session["output_html"] = True if "output_html" in request.form else False
+    session["output_profile"] = True if "output_profile" in request.form else False
 
-    g = orcid2vivo.crosswalk(request.form['orcid_id'],
-                             person_class=person_class if person_class != "Person" else None,
-                             skip_person=True if "skip_person" in request.form else False)
+    (g, p) = orcid2vivo.crosswalk(request.form['orcid_id'],
+                                  person_class=person_class if person_class != "Person" else None,
+                                  skip_person=True if "skip_person" in request.form else False)
 
     if "output" in request.form and request.form["output"] == "vivo":
         utility.sparql_insert(g, request.form["endpoint"], request.form["username"], request.form["password"])
@@ -57,8 +65,9 @@ def crosswalk():
     else:
         #Serialize
         rdf = g.serialize(format=request.form['format'])
-        if "output_html" in request.form:
-            return crosswalk_form(rdf=rdf)
+        if "output_html" in request.form or "output_profile" in request.form:
+            return crosswalk_form(rdf=rdf if "output_html" in request.form else None,
+                                  orcid_profile=p if "output_profile" in request.form else None)
         else:
             return Response(rdf, content_type=content_types[request.form['format']])
 
@@ -86,6 +95,7 @@ if __name__ == "__main__":
     #Parse
     args = parser.parse_args()
 
+    def_format = args.format
     def_endpoint = args.endpoint
     def_username = args.username
     def_password = args.password

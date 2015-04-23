@@ -40,7 +40,7 @@ def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=Fals
     crosswalk_affiliations(orcid_profile, person_uri, graph)
     crosswalk_funding(orcid_profile, person_uri, graph)
 
-    return graph
+    return (graph, orcid_profile)
 
 
 def fetch_orcid_profile(orcid_id):
@@ -79,8 +79,8 @@ if __name__ == '__main__':
     #Parse
     args = parser.parse_args()
 
-    g = crosswalk(args.orcid_id, vivo_person_id=args.person_id, person_class=args.person_class,
-                  skip_person=args.skip_person, namespace=args.namespace)
+    (g, p) = crosswalk(args.orcid_id, vivo_person_id=args.person_id, person_class=args.person_class,
+                       skip_person=args.skip_person, namespace=args.namespace)
 
     #Write to file
     if args.file:

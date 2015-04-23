@@ -26,7 +26,13 @@
     {% endwith %}
 
     {% if rdf %}
+        <h2>RDF</h2>
         <pre class="pre-scrollable">{{ rdf }}</pre>
+    {% endif %}
+
+    {% if orcid_profile %}
+        <h2>Orcid profile</h2>
+        <pre class="pre-scrollable">{{ orcid_profile }}</pre>
     {% endif %}
 
     <form class="form-horizontal" action="/" method="POST">
@@ -39,7 +45,7 @@
         <br />
         <div class="form-group">
             <div class="col-sm-offset-2">
-                <input type="radio" name="output" id="output1" value="serialize" {% if output == 'serialized' %} checked {% endif %}/>
+                <input type="radio" name="output" id="output1" value="serialize" {% if output == 'serialize' %} checked {% endif %}/>
                 <label for="output1" class="control-label">Crosswalk to RDF</label>
             </div>
         </div>
@@ -62,6 +68,12 @@
                     <input type="checkbox" name="output_html" {% if output_html %} checked {% endif %}>Output as html.
                 </label>
             </div>
+            <div class="checkbox col-sm-offset-2">
+                <label>
+                    <input type="checkbox" name="output_profile" {% if output_profile %} checked {% endif %}>Show Orcid profile.
+                </label>
+            </div>
+
         </fieldset>
         <div class="form-group">
             <div class="col-sm-offset-2">

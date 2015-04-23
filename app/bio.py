@@ -34,7 +34,9 @@ def crosswalk_bio(orcid_profile, person_uri, graph, skip_person=False, person_cl
             graph.add((vcard_name_uri, VCARD.familyName, Literal(family_name)))
 
     #Other identifiers
-    external_identifiers = orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"]["external-identifier"]
-    for external_identifier in external_identifiers:
-        if external_identifier["external-id-common-name"]["value"] == "Scopus Author ID":
-            graph.add((person_uri, VIVO.scopusId, Literal(external_identifier["external-id-reference"]["value"])))
+    if "external-identifiers" in orcid_profile["orcid-profile"]["orcid-bio"] \
+            and "external-identifier" in orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"]:
+        external_identifiers = orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"]["external-identifier"]
+        for external_identifier in external_identifiers:
+            if external_identifier["external-id-common-name"]["value"] == "Scopus Author ID":
+                graph.add((person_uri, VIVO.scopusId, Literal(external_identifier["external-id-reference"]["value"])))
