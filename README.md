@@ -109,10 +109,23 @@ For example, to start:
 
 The web form will now be available at http://localhost:5000/.
 
-Using curl:
+### Invoke using curl
+
 ```
 GLSS-F0G5RP:orcid2vivo justinlittman$ curl --data "orcid_id=0000-0003-1527-0030&format=turtle" http://localhost:5000/
 ```
+
+### Docker
+
+The web application can be deployed to a [Docker](https://www.docker.com/) container.
+
+```
+GLSS-F0G5RP:orcid2vivo justinlittman$ docker build -t orcid2vivo .
+GLSS-F0G5RP:orcid2vivo justinlittman$ docker run -e "O2V_ENDPOINT=http://vivo:8080/vivo/api/sparqlUpdate" -e "O2V_USERNAME=vivo_root@mydomain.edu" -e "O2V_PASSWORD=password" -e "O2V_NAMESPACE=http://vivo.mydomain.edu/" -p "5000:5000" -d orcid2vivo
+```
+
+The web form will now be available at http://localhost:5000/.  (Note:  If using boot2docker, use result of `boot2docker ip` instead of localhost.)
+
 
 ##Caveats:
 * All data is not cross walked to VIVO-ISF.
