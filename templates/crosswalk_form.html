@@ -10,11 +10,14 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 </head>
 <body>
 <div class="container">
     <div class="page-header">
       <h1>Orcid to VIVO service <small>proof of concept</small></h1>
+      <small>Code available at <a href="https://github.com/gwu-libraries/orcid2vivo">https://github.com/gwu-libraries/orcid2vivo</a>.</small>
     </div>
 
     {% with messages = get_flashed_messages() %}
@@ -145,10 +148,6 @@
             </div>
         </div>
     </form>
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
 </div>
 </body>
 </html>

@@ -32,15 +32,14 @@ def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=Fals
 
     #ORCID
     person_uri = ns.D[vivo_person_id or orcid_id]
-    #TODO: Add this correctly.
-    graph.add((person_uri, VIVO.orcidId, Literal(orcid_id)))
+    graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid_id)))
 
     crosswalk_bio(orcid_profile, person_uri, graph, person_class=person_clazz, skip_person=skip_person)
     crosswalk_works(orcid_profile, person_uri, graph)
     crosswalk_affiliations(orcid_profile, person_uri, graph)
     crosswalk_funding(orcid_profile, person_uri, graph)
 
-    return (graph, orcid_profile)
+    return graph, orcid_profile
 
 
 def fetch_orcid_profile(orcid_id):
