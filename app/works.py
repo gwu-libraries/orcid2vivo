@@ -194,7 +194,7 @@ def _get_publication_date(work):
     if publication_date:
         year = publication_date["year"]["value"] if publication_date.get("year") else None
         month = publication_date["month"]["value"] if publication_date.get("month") else None
-        day = publication_date["day"]["value"] if publication_date.get("day") in publication_date else None
+        day = publication_date["day"]["value"] if publication_date.get("day") else None
     return year, month, day
 
 

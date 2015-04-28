@@ -38,7 +38,7 @@ def crosswalk_form(rdf=None, orcid_profile=None):
                            output=session.get("output") or def_output,
                            output_html=session.get("output_html") or def_output_html,
                            output_profile=session.get("output_profile") or def_output_profile,
-                           rdf=rdf,
+                           rdf=rdf.decode("utf-8"),
                            orcid_profile=json.dumps(orcid_profile, indent=3) if orcid_profile else None)
 
 @app.route('/', methods=["POST"])
@@ -64,7 +64,7 @@ def crosswalk():
         return crosswalk_form()
     else:
         #Serialize
-        rdf = g.serialize(format=request.form['format'])
+        rdf = g.serialize(format=request.form['format'], encoding="utf-8")
         if "output_html" in request.form or "output_profile" in request.form:
             return crosswalk_form(rdf=rdf if "output_html" in request.form else None,
                                   orcid_profile=p if "output_profile" in request.form else None)
