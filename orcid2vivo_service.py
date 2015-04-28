@@ -38,7 +38,7 @@ def crosswalk_form(rdf=None, orcid_profile=None):
                            output=session.get("output") or def_output,
                            output_html=session.get("output_html") or def_output_html,
                            output_profile=session.get("output_profile") or def_output_profile,
-                           rdf=rdf.decode("utf-8"),
+                           rdf=rdf.decode("utf-8") if rdf else None,
                            orcid_profile=json.dumps(orcid_profile, indent=3) if orcid_profile else None)
 
 @app.route('/', methods=["POST"])

@@ -35,6 +35,7 @@ def crosswalk_bio(orcid_profile, person_uri, graph, skip_person=False, person_cl
 
     #Other identifiers
     if "external-identifiers" in orcid_profile["orcid-profile"]["orcid-bio"] \
+            and orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"] \
             and "external-identifier" in orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"]:
         external_identifiers = orcid_profile["orcid-profile"]["orcid-bio"]["external-identifiers"]["external-identifier"]
         for external_identifier in external_identifiers:

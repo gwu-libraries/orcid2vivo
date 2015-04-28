@@ -7,6 +7,7 @@ from utility import add_date, add_date_interval
 
 def crosswalk_funding(orcid_profile, person_uri, graph):
     if "funding-list" in orcid_profile["orcid-profile"]["orcid-activities"] \
+            and orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"] \
             and "funding" in orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]:
         #Funding
         fundings = orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]["funding"]

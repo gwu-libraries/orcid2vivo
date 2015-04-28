@@ -9,7 +9,8 @@ import app.vivo_namespace as ns
 def crosswalk_affiliations(orcid_profile, person_uri, graph):
     #Education
     if "affiliations" in orcid_profile["orcid-profile"]["orcid-activities"] \
-            and "affiliation" in orcid_profile["orcid-profile"]["orcid-activities"]["affiliations"]["affiliation"]:
+            and orcid_profile["orcid-profile"]["orcid-activities"]["affiliations"] \
+            and "affiliation" in orcid_profile["orcid-profile"]["orcid-activities"]["affiliations"]:
         affiliations = orcid_profile["orcid-profile"]["orcid-activities"]["affiliations"]["affiliation"]
         for affiliation in affiliations:
             if affiliation["type"] == "EDUCATION":

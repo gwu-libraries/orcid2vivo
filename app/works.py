@@ -17,6 +17,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
 
     #Publications
     if "orcid-works" in orcid_profile["orcid-profile"]["orcid-activities"] \
+            and orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"] \
             and "orcid-work" in orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"]:
         works = orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"]["orcid-work"]
         for work in works:
