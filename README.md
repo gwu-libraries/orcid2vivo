@@ -1,6 +1,8 @@
 # orcid2vivo
 Proof of concept code for retrieving data from the ORCID API and crosswalking to VIVO-ISF.
 
+Try it at  http://gw-orcid2vivo.wrlc.org/orcid2vivo
+
 ## Commandline
 * Supports outputting to:
     * screen / stdout
