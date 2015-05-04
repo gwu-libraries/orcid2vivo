@@ -56,7 +56,9 @@ def crosswalk():
 
     (g, p) = orcid2vivo.crosswalk(request.form['orcid_id'],
                                   person_class=person_class if person_class != "Person" else None,
-                                  skip_person=True if "skip_person" in request.form else False)
+                                  skip_person=True if "skip_person" in request.form else False,
+                                  vivo_person_id=request.form["person_id"],
+                                  namespace=request.form["namespace"])
 
     if "output" in request.form and request.form["output"] == "vivo":
         utility.sparql_insert(g, request.form["endpoint"], request.form["username"], request.form["password"])
