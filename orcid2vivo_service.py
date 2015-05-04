@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, session, Response, flash
+from flask import Flask, render_template, request, session, Response, flash, Markup
 import argparse
 import json
+import urllib
 import orcid2vivo
 import app.utility as utility
 
@@ -44,7 +45,8 @@ def crosswalk_form(rdf=None, orcid_profile=None):
 @app.route('/', methods=["POST"])
 def crosswalk():
     session["format"] = request.form.get("format")
-    session["endpoint"] = request.form.get("endpoint")
+    endpoint = request.form.get("endpoint")
+    session["endpoint"] = endpoint
     session["username"] = request.form.get("username")
     session["password"] = request.form.get("password")
     person_class = request.form.get("person_class")
@@ -54,15 +56,19 @@ def crosswalk():
     session["output_html"] = True if "output_html" in request.form else False
     session["output_profile"] = True if "output_profile" in request.form else False
 
-    (g, p) = orcid2vivo.crosswalk(request.form['orcid_id'],
-                                  person_class=person_class if person_class != "Person" else None,
-                                  skip_person=True if "skip_person" in request.form else False,
-                                  vivo_person_id=request.form["person_id"],
-                                  namespace=request.form["namespace"])
+    (g, p, per_uri) = orcid2vivo.crosswalk(request.form['orcid_id'],
+                                           person_class=person_class if person_class != "Person" else None,
+                                           skip_person=True if "skip_person" in request.form else False,
+                                           vivo_person_id=request.form["person_id"],
+                                           namespace=request.form["namespace"])
 
     if "output" in request.form and request.form["output"] == "vivo":
-        utility.sparql_insert(g, request.form["endpoint"], request.form["username"], request.form["password"])
-        flash("Loaded to VIVO")
+        utility.sparql_insert(g, endpoint, request.form["username"], request.form["password"])
+        msg = "Loaded to VIVO"
+        if endpoint.endswith("api/sparqlUpdate"):
+            vivo_profile_url = "%s/individual?%s" % (endpoint[:-17], urllib.urlencode({"uri": per_uri}))
+            msg += ". Try <a href=\"%s\">%s</a>." % (vivo_profile_url, vivo_profile_url)
+        flash(Markup(msg))
         return crosswalk_form()
     else:
         #Serialize
