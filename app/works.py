@@ -168,7 +168,7 @@ def fetch_crossref_doi(doi):
 
 def _parse_bibtex(work):
     bibtex = {}
-    if "work-citation" in work and work["work-citation"]["work-citation-type"] == "BIBTEX":
+    if work and work.get("work-citation", {}).get("work-citation-type") == "BIBTEX":
         citation = work["work-citation"]["citation"]
         #Need to add \n for bibtexparser to work
         curly_level = 0
