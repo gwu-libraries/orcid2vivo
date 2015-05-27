@@ -2,14 +2,13 @@ import hashlib
 
 #Prefixes
 PREFIX_AWARD = "awd"
-PREFIX_AWARDED_DEGREE = "awdgre"
 PREFIX_DEGREE = "dgre"
 PREFIX_DOCUMENT = "doc"
 PREFIX_GRANT = "grant"
 PREFIX_JOURNAL = "jrnl"
 PREFIX_ORGANIZATION = "org"
 PREFIX_PERSON = "per"
-
+PREFIX_EDUCATIONAL_PROCESS = "edproc"
 
 def to_hash_identifier(prefix, parts):
     """

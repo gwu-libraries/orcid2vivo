@@ -13,145 +13,140 @@ from utility import add_date
 
 
 def crosswalk_works(orcid_profile, person_uri, graph):
-    person_surname = orcid_profile["orcid-profile"]["orcid-bio"]["personal-details"]["family-name"]["value"]
-
     #Publications
-    if "orcid-works" in orcid_profile["orcid-profile"]["orcid-activities"] \
-            and orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"] \
-            and "orcid-work" in orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"]:
-        works = orcid_profile["orcid-profile"]["orcid-activities"]["orcid-works"]["orcid-work"]
-        for work in works:
+    for work in ((orcid_profile["orcid-profile"].get("orcid-activities") or {}).get("orcid-works") or {}).get("orcid-work", []):
+        ##Extract
+        #Get external identifiers so that can get DOI
+        external_identifiers = _get_work_identifiers(work)
+        doi = external_identifiers.get("DOI")
+        doi_record = fetch_crossref_doi(doi) if doi else None
+
+        #Bibtex
+        bibtex = _parse_bibtex(work)
+
+        #Work Type
+        work_type = work["work-type"]
+
+        #Title
+        title = work["work-title"]["title"]["value"]
+
+        work_uri = ns.D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
+
+        #Publication date
+        (publication_year, publication_month, publication_day) = _get_doi_publication_date(doi_record) \
+            if doi_record else _get_publication_date(work)
+
+        #Subjects
+        subjects = doi_record["subject"] if doi_record and "subject" in doi_record else None
+
+        #Authors
+        authors = _get_doi_authors(doi_record) if doi_record else None
+        #TODO: Get from ORCID profile if no doi record
+
+        #Publisher
+        publisher = bibtex.get("publisher")
+
+        ##Add triples
+        #Title
+        graph.add((work_uri, RDFS.label, Literal(title)))
+        #Person (via Authorship)
+        authorship_uri = work_uri + "-auth"
+        graph.add((authorship_uri, RDF.type, VIVO.Authorship))
+        graph.add((authorship_uri, VIVO.relates, work_uri))
+        graph.add((authorship_uri, VIVO.relates, person_uri))
+        #Other authors
+        if authors:
+            person_surname = orcid_profile["orcid-profile"]["orcid-bio"]["personal-details"]["family-name"]["value"]
+            for (first_name, surname) in authors:
+                if not person_surname.lower() == surname.lower():
+                    author_uri = ns.D[to_hash_identifier(PREFIX_PERSON, (first_name, surname))]
+                    graph.add((author_uri, RDF.type, FOAF.Person))
+                    full_name = join_if_not_empty((first_name, surname))
+                    graph.add((author_uri, RDFS.label, Literal(full_name)))
+
+                    authorship_uri = author_uri + "-auth"
+                    graph.add((authorship_uri, RDF.type, VIVO.Authorship))
+                    graph.add((authorship_uri, VIVO.relates, work_uri))
+                    graph.add((authorship_uri, VIVO.relates, author_uri))
+
+        #Date
+        date_uri = work_uri + "-date"
+        graph.add((work_uri, VIVO.dateTimeValue, date_uri))
+        add_date(date_uri, publication_year, graph, publication_month, publication_day)
+        #Subjects
+        if subjects:
+            for subject in subjects:
+                subject_uri = ns.D[to_hash_identifier("sub", (subject,))]
+                graph.add((work_uri, VIVO.hasSubjectArea, subject_uri))
+                graph.add((subject_uri, RDF.type, SKOS.Concept))
+                graph.add((subject_uri, RDFS.label, Literal(subject)))
+        #Identifier
+        if doi:
+            graph.add((work_uri, BIBO.doi, Literal(doi)))
+            #Also add as a website
+            identifier_url = "http://dx.doi.org/%s" % doi
+            vcard_uri = ns.D[to_hash_identifier("vcard", (identifier_url,))]
+            graph.add((vcard_uri, RDF.type, VCARD.Kind))
+            #Has contact info
+            graph.add((work_uri, OBO.ARG_2000028, vcard_uri))
+            #Url vcard
+            vcard_url_uri = vcard_uri + "-url"
+            graph.add((vcard_url_uri, RDF.type, VCARD.URL))
+            graph.add((vcard_uri, VCARD.hasURL, vcard_url_uri))
+            graph.add((vcard_url_uri, VCARD.url, Literal(identifier_url, datatype=XSD.anyURI)))
+
+        #Publisher
+        if publisher:
+            publisher_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (publisher,))]
+            graph.add((publisher_uri, RDF.type, FOAF.Organization))
+            graph.add((publisher_uri, RDFS.label, Literal(publisher)))
+            graph.add((work_uri, VIVO.publisher, publisher_uri))
+
+        if work_type == "JOURNAL_ARTICLE":
             ##Extract
-            #Get external identifiers so that can get DOI
-            external_identifiers = _get_work_identifiers(work)
-            doi = external_identifiers.get("DOI")
-            doi_record = fetch_crossref_doi(doi) if doi else None
-
-            #Bibtex
-            bibtex = _parse_bibtex(work)
-
-            #Work Type
-            work_type = work["work-type"]
-
-            #Title
-            title = work["work-title"]["title"]["value"]
-
-            work_uri = ns.D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
-
-            #Publication date
-            (publication_year, publication_month, publication_day) = _get_doi_publication_date(doi_record) \
-                if doi_record else _get_publication_date(work)
-
-            #Subjects
-            subjects = doi_record["subject"] if doi_record and "subject" in doi_record else None
-
-            #Authors
-            authors = _get_doi_authors(doi_record) if doi_record else None
-            #TODO: Get from ORCID profile if no doi record
-
-            #Publisher
-            publisher = bibtex.get("publisher")
+            #Journal
+            journal = bibtex.get("journal")
+            #Volume
+            volume = bibtex.get("volume")
+            #Number
+            number = bibtex.get("number")
+            #Pages
+            pages = bibtex.get("pages")
+            start_page = None
+            end_page = None
+            if pages and "-" in pages:
+                (start_page, end_page) = re.split(" *-+ *", pages, maxsplit=2)
 
             ##Add triples
-            #Title
-            graph.add((work_uri, RDFS.label, Literal(title)))
-            #Person (via Authorship)
-            authorship_uri = work_uri + "-auth"
-            graph.add((authorship_uri, RDF.type, VIVO.Authorship))
-            graph.add((authorship_uri, VIVO.relates, work_uri))
-            graph.add((authorship_uri, VIVO.relates, person_uri))
-            #Other authors
-            if authors:
-                for (first_name, surname) in authors:
-                    if not person_surname.lower() == surname.lower():
-                        author_uri = ns.D[to_hash_identifier(PREFIX_PERSON, (first_name, surname))]
-                        graph.add((author_uri, RDF.type, FOAF.Person))
-                        full_name = join_if_not_empty((first_name, surname))
-                        graph.add((author_uri, RDFS.label, Literal(full_name)))
+            #Type
+            graph.add((work_uri, RDF.type, BIBO.AcademicArticle))
+            #Journal
+            if journal:
+                journal_uri = ns.D[to_hash_identifier(PREFIX_JOURNAL, (BIBO.Journal, journal))]
+                graph.add((journal_uri, RDF.type, BIBO.Journal))
+                graph.add((journal_uri, RDFS.label, Literal(journal)))
+                graph.add((work_uri, VIVO.hasPublicationVenue, journal_uri))
 
-                        authorship_uri = author_uri + "-auth"
-                        graph.add((authorship_uri, RDF.type, VIVO.Authorship))
-                        graph.add((authorship_uri, VIVO.relates, work_uri))
-                        graph.add((authorship_uri, VIVO.relates, author_uri))
+            #Volume
+            if volume:
+                graph.add((work_uri, BIBO.volume, Literal(volume)))
+            #Number
+            if number:
+                graph.add((work_uri, BIBO.issue, Literal(number)))
+            #Pages
+            if start_page:
+                graph.add((work_uri, BIBO.pageStart, Literal(start_page)))
+            if end_page:
+                graph.add((work_uri, BIBO.pageEnd, Literal(end_page)))
 
-            #Date
-            date_uri = work_uri + "-date"
-            graph.add((work_uri, VIVO.dateTimeValue, date_uri))
-            add_date(date_uri, publication_year, graph, publication_month, publication_day)
-            #Subjects
-            if subjects:
-                for subject in subjects:
-                    subject_uri = ns.D[to_hash_identifier("sub", (subject,))]
-                    graph.add((work_uri, VIVO.hasSubjectArea, subject_uri))
-                    graph.add((subject_uri, RDF.type, SKOS.Concept))
-                    graph.add((subject_uri, RDFS.label, Literal(subject)))
-            #Identifier
-            if doi:
-                graph.add((work_uri, BIBO.doi, Literal(doi)))
-                #Also add as a website
-                identifier_url = "http://dx.doi.org/%s" % doi
-                vcard_uri = ns.D[to_hash_identifier("vcard", (identifier_url,))]
-                graph.add((vcard_uri, RDF.type, VCARD.Kind))
-                #Has contact info
-                graph.add((work_uri, OBO.ARG_2000028, vcard_uri))
-                #Url vcard
-                vcard_url_uri = vcard_uri + "-url"
-                graph.add((vcard_url_uri, RDF.type, VCARD.URL))
-                graph.add((vcard_uri, VCARD.hasURL, vcard_url_uri))
-                graph.add((vcard_url_uri, VCARD.url, Literal(identifier_url, datatype=XSD.anyURI)))
-
-            #Publisher
-            if publisher:
-                publisher_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (publisher,))]
-                graph.add((publisher_uri, RDF.type, FOAF.Organization))
-                graph.add((publisher_uri, RDFS.label, Literal(publisher)))
-                graph.add((work_uri, VIVO.publisher, publisher_uri))
-
-            if work_type == "JOURNAL_ARTICLE":
-                ##Extract
-                #Journal
-                journal = bibtex.get("journal")
-                #Volume
-                volume = bibtex.get("volume")
-                #Number
-                number = bibtex.get("number")
-                #Pages
-                pages = bibtex.get("pages")
-                start_page = None
-                end_page = None
-                if pages and "-" in pages:
-                    (start_page, end_page) = re.split(" *-+ *", pages, maxsplit=2)
-
-                ##Add triples
-                #Type
-                graph.add((work_uri, RDF.type, BIBO.AcademicArticle))
-                #Journal
-                if journal:
-                    journal_uri = ns.D[to_hash_identifier(PREFIX_JOURNAL, (BIBO.Journal, journal))]
-                    graph.add((journal_uri, RDF.type, BIBO.Journal))
-                    graph.add((journal_uri, RDFS.label, Literal(journal)))
-                    graph.add((work_uri, VIVO.hasPublicationVenue, journal_uri))
-
-                #Volume
-                if volume:
-                    graph.add((work_uri, BIBO.volume, Literal(volume)))
-                #Number
-                if number:
-                    graph.add((work_uri, BIBO.issue, Literal(number)))
-                #Pages
-                if start_page:
-                    graph.add((work_uri, BIBO.pageStart, Literal(start_page)))
-                if end_page:
-                    graph.add((work_uri, BIBO.pageEnd, Literal(end_page)))
-
-            elif work_type == "BOOK":
-                ##Add triples
-                #Type
-                graph.add((work_uri, RDF.type, BIBO.Book))
-            elif work_type == "DATA_SET":
-                ##Add triples
-                #Type
-                graph.add((work_uri, RDF.type, VIVO.Dataset))
+        elif work_type == "BOOK":
+            ##Add triples
+            #Type
+            graph.add((work_uri, RDF.type, BIBO.Book))
+        elif work_type == "DATA_SET":
+            ##Add triples
+            #Type
+            graph.add((work_uri, RDF.type, VIVO.Dataset))
 
 
 def fetch_crossref_doi(doi):
