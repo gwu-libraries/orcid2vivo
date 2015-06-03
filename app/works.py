@@ -13,13 +13,19 @@ from utility import add_date
 
 
 def crosswalk_works(orcid_profile, person_uri, graph):
+    # Work metadata may be available from the orcid profile, bibtex contained in the orcid profile, and/or a crossref
+    # record. The preferred order (in general) for getting metadata is crossref, bibtex, orcid.
+
+    # Note that datacite records were considered, but not found to have additional/better metadata.
+
     #Publications
-    for work in ((orcid_profile["orcid-profile"].get("orcid-activities") or {}).get("orcid-works") or {}).get("orcid-work", []):
+    for work in ((orcid_profile["orcid-profile"].get("orcid-activities") or {}).get("orcid-works") or {})\
+            .get("orcid-work", []):
         ##Extract
         #Get external identifiers so that can get DOI
         external_identifiers = _get_work_identifiers(work)
         doi = external_identifiers.get("DOI")
-        doi_record = fetch_crossref_doi(doi) if doi else None
+        crossref_record = fetch_crossref_doi(doi) if doi else None
 
         #Bibtex
         bibtex = _parse_bibtex(work)
@@ -28,23 +34,42 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         work_type = work["work-type"]
 
         #Title
+        #OK to get this straight from orcid profile
         title = work["work-title"]["title"]["value"]
+        #TODO: Concatenate subtitle if present. See #9.
 
         work_uri = ns.D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
 
         #Publication date
-        (publication_year, publication_month, publication_day) = _get_doi_publication_date(doi_record) \
-            if doi_record else _get_publication_date(work)
+        (publication_year, publication_month, publication_day) = _get_crossref_publication_date(crossref_record) \
+            if crossref_record else _get_publication_date(work)
 
         #Subjects
-        subjects = doi_record["subject"] if doi_record and "subject" in doi_record else None
+        subjects = crossref_record["subject"] if crossref_record and "subject" in crossref_record else None
 
-        #Authors
-        authors = _get_doi_authors(doi_record) if doi_record else None
-        #TODO: Get from ORCID profile if no doi record
+        #Authors (an array of (first_name, surname))
+        authors = _get_doi_authors(crossref_record) if crossref_record else None
+        #TODO: Get from bibtext and ORCID profile as alternates. See #5.
 
         #Publisher
         publisher = bibtex.get("publisher")
+        #TODO: Get from crossref as preferred. See #10.
+
+        #Journal
+        journal = bibtex.get("journal")
+        #TODO: Get from crossref as preferred, orcid profile as alterate. See #11.
+
+        #Volume
+        volume = bibtex.get("volume")
+        #Number
+        number = bibtex.get("number")
+        #Pages
+        pages = bibtex.get("pages")
+        start_page = None
+        end_page = None
+        if pages and "-" in pages:
+            (start_page, end_page) = re.split(" *-+ *", pages, maxsplit=2)
+
 
         ##Add triples
         #Title
@@ -102,22 +127,20 @@ def crosswalk_works(orcid_profile, person_uri, graph):
             graph.add((publisher_uri, RDFS.label, Literal(publisher)))
             graph.add((work_uri, VIVO.publisher, publisher_uri))
 
-        if work_type == "JOURNAL_ARTICLE":
-            ##Extract
-            #Journal
-            journal = bibtex.get("journal")
-            #Volume
-            volume = bibtex.get("volume")
-            #Number
-            number = bibtex.get("number")
-            #Pages
-            pages = bibtex.get("pages")
-            start_page = None
-            end_page = None
-            if pages and "-" in pages:
-                (start_page, end_page) = re.split(" *-+ *", pages, maxsplit=2)
+        #Volume
+        if volume:
+            graph.add((work_uri, BIBO.volume, Literal(volume)))
+        #Number
+        if number:
+            graph.add((work_uri, BIBO.issue, Literal(number)))
+        #Pages
+        if start_page:
+            graph.add((work_uri, BIBO.pageStart, Literal(start_page)))
+        if end_page:
+            graph.add((work_uri, BIBO.pageEnd, Literal(end_page)))
 
-            ##Add triples
+        #TODO: See #13 for mapping additional work types.
+        if work_type == "JOURNAL_ARTICLE":
             #Type
             graph.add((work_uri, RDF.type, BIBO.AcademicArticle))
             #Journal
@@ -126,18 +149,6 @@ def crosswalk_works(orcid_profile, person_uri, graph):
                 graph.add((journal_uri, RDF.type, BIBO.Journal))
                 graph.add((journal_uri, RDFS.label, Literal(journal)))
                 graph.add((work_uri, VIVO.hasPublicationVenue, journal_uri))
-
-            #Volume
-            if volume:
-                graph.add((work_uri, BIBO.volume, Literal(volume)))
-            #Number
-            if number:
-                graph.add((work_uri, BIBO.issue, Literal(number)))
-            #Pages
-            if start_page:
-                graph.add((work_uri, BIBO.pageStart, Literal(start_page)))
-            if end_page:
-                graph.add((work_uri, BIBO.pageEnd, Literal(end_page)))
 
         elif work_type == "BOOK":
             ##Add triples
@@ -194,7 +205,7 @@ def _get_publication_date(work):
     return year, month, day
 
 
-def _get_doi_publication_date(doi_record):
+def _get_crossref_publication_date(doi_record):
     date_parts = doi_record["issued"]["date-parts"][0]
     return date_parts[0], date_parts[1] if len(date_parts) > 1 else None, date_parts[2] if len(date_parts) > 2 else None
 
