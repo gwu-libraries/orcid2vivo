@@ -2,3 +2,4 @@ rdflib
 requests
 bibtexparser
 flask
+vcrpy
