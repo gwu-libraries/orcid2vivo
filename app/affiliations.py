@@ -9,7 +9,7 @@ import app.vivo_namespace as ns
 
 def crosswalk_affiliations(orcid_profile, person_uri, graph):
     #Education
-    for affiliation in (orcid_profile["orcid-profile"].get("orcid-activities") or {}).get("affiliations", {})\
+    for affiliation in ((orcid_profile["orcid-profile"].get("orcid-activities") or {}).get("affiliations", {}) or {})\
             .get("affiliation", []):
         if affiliation["type"] == "EDUCATION":
             #Gather some values

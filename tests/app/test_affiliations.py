@@ -23,6 +23,20 @@ class TestAffiliations(TestCase):
         affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
+    def test_no_affiliations(self):
+        orcid_profile = json.loads("""
+{
+    "message-version": "1.2",
+    "orcid-profile": {
+        "orcid-activities": {
+          "affiliations": null
+        }
+    }
+}
+        """)
+        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.assertEqual(0, len(self.graph))
+
     def test_no_education(self):
         orcid_profile = json.loads("""
 {
