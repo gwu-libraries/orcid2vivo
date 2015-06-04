@@ -25,7 +25,7 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         #Get external identifiers so that can get DOI
         external_identifiers = _get_work_identifiers(work)
         doi = external_identifiers.get("DOI")
-        crossref_record = fetch_crossref_doi(doi) if doi else None
+        crossref_record = fetch_crossref_doi(doi) if doi else {}
 
         #Bibtex
         bibtex = _parse_bibtex(work)
@@ -34,21 +34,19 @@ def crosswalk_works(orcid_profile, person_uri, graph):
         work_type = work["work-type"]
 
         #Title
-        #OK to get this straight from orcid profile
-        title = work["work-title"]["title"]["value"]
-        #TODO: Concatenate subtitle if present. See #9.
+        title = _get_crossref_title(crossref_record) or bibtex.get("title") or _get_orcid_title(work)
 
         work_uri = ns.D[to_hash_identifier(PREFIX_DOCUMENT, (title, work_type))]
 
         #Publication date
         (publication_year, publication_month, publication_day) = _get_crossref_publication_date(crossref_record) \
-            if crossref_record else _get_publication_date(work)
+            or _get_publication_date(work)
 
         #Subjects
         subjects = crossref_record["subject"] if crossref_record and "subject" in crossref_record else None
 
         #Authors (an array of (first_name, surname))
-        authors = _get_doi_authors(crossref_record) if crossref_record else None
+        authors = _get_crossref_authors(crossref_record)
         #TODO: Get from bibtext and ORCID profile as alternates. See #5.
 
         #Publisher
@@ -193,6 +191,16 @@ def _parse_bibtex(work):
     return bibtex
 
 
+def _get_crossref_title(crossref_record):
+    if "title" in crossref_record and crossref_record["title"]:
+        return crossref_record["title"][0]
+    return None
+
+
+def _get_orcid_title(work):
+    return join_if_not_empty((work["work-title"]["title"]["value"],
+                                   (work["work-title"].get("subtitle") or {}).get("value")), ": ")
+
 def _get_publication_date(work):
     year = None
     month = None
@@ -206,8 +214,10 @@ def _get_publication_date(work):
 
 
 def _get_crossref_publication_date(doi_record):
-    date_parts = doi_record["issued"]["date-parts"][0]
-    return date_parts[0], date_parts[1] if len(date_parts) > 1 else None, date_parts[2] if len(date_parts) > 2 else None
+    if "issued" in doi_record and "date-parts" in doi_record["issued"]:
+        date_parts = doi_record["issued"]["date-parts"][0]
+        return date_parts[0], date_parts[1] if len(date_parts) > 1 else None, date_parts[2] if len(date_parts) > 2 else None
+    return None
 
 
 def _get_work_identifiers(work):
@@ -220,9 +230,9 @@ def _get_work_identifiers(work):
     return ids
 
 
-def _get_doi_authors(doi_record):
+def _get_crossref_authors(doi_record):
     authors = []
-    for author in doi_record["author"]:
+    for author in doi_record.get("author", []):
         authors.append((author["given"], author["family"]))
     return authors
 
