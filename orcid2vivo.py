@@ -8,7 +8,7 @@ from app.affiliations import crosswalk_affiliations
 from app.bio import crosswalk_bio
 from app.fundings import crosswalk_funding
 from app.works import crosswalk_works
-from app.utility import sparql_insert
+from app.utility import sparql_insert, clean_orcid
 import app.vivo_namespace as ns
 
 
@@ -23,7 +23,8 @@ def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=Fals
     graph = Graph(namespace_manager=ns.ns_manager)
 
     #0000-0003-3441-946X
-    orcid_profile = fetch_orcid_profile(orcid_id)
+    orcid = clean_orcid(orcid_id)
+    orcid_profile = fetch_orcid_profile(orcid)
 
     #Determine the class to use for the person
     person_clazz = FOAF.Person
@@ -31,8 +32,8 @@ def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=Fals
         person_clazz = getattr(VIVO, person_class)
 
     #ORCID
-    person_uri = ns.D[vivo_person_id or orcid_id]
-    graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid_id)))
+    person_uri = ns.D[vivo_person_id or orcid]
+    graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid)))
 
     crosswalk_bio(orcid_profile, person_uri, graph, person_class=person_clazz, skip_person=skip_person)
     crosswalk_works(orcid_profile, person_uri, graph)
@@ -43,8 +44,9 @@ def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=Fals
 
 
 def fetch_orcid_profile(orcid_id):
+    orcid = clean_orcid(orcid_id)
     #curl -H "Accept: application/orcid+json" 'http://pub.orcid.org/v1.2/0000-0003-3441-946X/orcid-profile' -L -i
-    r = requests.get('http://pub.orcid.org/v1.2/%s/orcid-profile' % orcid_id,
+    r = requests.get('http://pub.orcid.org/v1.2/%s/orcid-profile' % orcid,
                      headers={"Accept": "application/orcid+json"})
     if r:
         return r.json()

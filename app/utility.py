@@ -144,3 +144,13 @@ def sparql_insert(graph, endpoint, username, password):
     sparql.setQuery(query)
     sparql.setMethod("POST")
     sparql.query()
+
+
+def clean_orcid(value):
+    """
+    Minimal ORCID validation.  Allowing for orcid.org/
+    """
+    if value.find('orcid.org/') > -1:
+        return value.split('/')[1]
+    else:
+        return value
