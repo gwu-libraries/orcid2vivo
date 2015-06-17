@@ -43,11 +43,11 @@ def crosswalk_funding(orcid_profile, person_uri, graph):
                 start_day = funding["start-date"]["day"]["value"] \
                     if "start-date" in funding and "day" in funding["start-date"] else None
                 end_year = funding["end-date"]["year"]["value"] \
-                    if "end-date" in funding and "year" in funding["start-date"] else None
+                    if funding.get("end-date") is not None and "year" in funding["end-date"] else None
                 end_month = funding["end-date"]["month"]["value"] \
-                    if "end-date" in funding and "month" in funding["start-date"] else None
+                    if funding.get("end-date") is not None and "month" in funding["end-date"] else None
                 end_day = funding["end-date"]["day"]["value"] \
-                    if "end-date" in funding and "day" in funding["start-date"] else None
+                    if funding.get("end-date") and "day" in funding["end-date"] else None
 
                 add_date_interval(interval_uri, grant_uri, graph,
                                   interval_start_uri if add_date(interval_start_uri,
@@ -62,9 +62,12 @@ def crosswalk_funding(orcid_profile, person_uri, graph):
                                                                end_day) else None)
 
                 #Award amount
-                if "amount" in funding:
-                    award_amount = "${:,}".format(int(funding["amount"]["value"]))
-                    graph.add((grant_uri, VIVO.totalAwardAmount, Literal(award_amount)))
+                funding_amount = funding.get("amount")
+                if funding_amount is not None:
+                    value = funding_amount.get("value")
+                    if value is not None:
+                        award_amount = "${:,}".format(int(value))
+                        graph.add((grant_uri, VIVO.totalAwardAmount, Literal(award_amount)))
 
                 #Awarded by
                 if "organization" in funding:
