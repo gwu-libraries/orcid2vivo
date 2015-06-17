@@ -6,13 +6,13 @@ from SPARQLWrapper import SPARQLWrapper
 
 def num_to_str(num):
     """
-    Converts a number to a string.
+    Converts a number to a string and removes leading 0s.
 
     If the number is already a string, then just returns.
     """
     if isinstance(num, Number):
         return str(int(num))
-    return num
+    return num.lstrip("0")
 
 
 def join_if_not_empty(items, sep=" "):
@@ -65,7 +65,10 @@ def month_str_to_month_int(month_str):
 
 def month_int_to_month_str(month_int):
     if isinstance(month_int, basestring):
-        return month_int
+        try:
+            month_int = int(month_int)
+        except ValueError:
+            return month_int
 
     return months[month_int-1]
 
