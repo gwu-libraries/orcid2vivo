@@ -3,10 +3,12 @@
 
 from unittest import TestCase
 import json
-import app.bio as bio
+from app.bio import BioCrosswalk
 import app.vivo_namespace as ns
 from rdflib import Literal, Graph, RDF, RDFS
 from app.vivo_namespace import D, VIVO, FOAF
+from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo import SimpleCreateEntitiesStrategy
 
 
 class TestBio(TestCase):
@@ -14,6 +16,9 @@ class TestBio(TestCase):
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
+        self.create_strategy = SimpleCreateEntitiesStrategy(person_uri=self.person_uri)
+        self.crosswalker = BioCrosswalk(identifier_strategy=HashIdentifierStrategy(),
+                                        create_strategy=self.create_strategy)
 
     def test_no_external_identifiers(self):
         orcid_profile = json.loads("""
@@ -26,7 +31,7 @@ class TestBio(TestCase):
     }
 }
         """)
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_external_identifiers(self):
@@ -119,7 +124,8 @@ class TestBio(TestCase):
     }
 }
         """)
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.create_strategy.skip_person = True
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(2, len(self.graph))
         #ScopusID is added.
         self.assertTrue(self.graph[D["test"]: VIVO["scopusId"] : Literal("6602258586")])
@@ -166,7 +172,7 @@ class TestBio(TestCase):
     }
 }
         """)
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         #Laurel is a person
         self.assertTrue(self.graph[D["test"]: RDF.type: FOAF.Person])
         #with a label
@@ -198,7 +204,7 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
         #Has a biography
         self.assertTrue(self.graph[D["test"]: VIVO["overview"]:
@@ -216,7 +222,7 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
         #Has a biography
         self.assertEqual(0, len(self.graph))
@@ -260,15 +266,15 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
-
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         #LinkedIn
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?vcw a vcard:URL .
                 ?vcw vcard:url "http://www.linkedin.com/pub/laurel-haak/3/1b/4a3/"^^xsd:anyURI .
                 ?vcw rdfs:label "LinkedIn" .
-                d:test-vcard vcard:hasURL ?vcw .
+                ?vc a vcard:Individual .
+                ?vc vcard:hasURL ?vcw .
             }
         """)))
 
@@ -277,7 +283,8 @@ class TestBio(TestCase):
             ask where {
                 ?vcw a vcard:URL .
                 ?vcw vcard:url "https://www.researchgate.net/profile/Laurel_Haak"^^xsd:anyURI .
-                d:test-vcard vcard:hasURL ?vcw .
+                ?vc a vcard:Individual .
+                ?vc vcard:hasURL ?vcw .
                 filter not exists {
                     ?vcw rdfs:label ?label .
                 }
@@ -299,7 +306,7 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
         #Has a biography
         self.assertEqual(0, len(self.graph))
@@ -316,7 +323,7 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
         #Has a biography
         self.assertEqual(0, len(self.graph))
@@ -346,7 +353,7 @@ class TestBio(TestCase):
 }
         """)
 
-        bio.crosswalk_bio(orcid_profile, self.person_uri, self.graph, skip_person=True)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(3, len(self.graph))
 
         self.assertTrue(bool(self.graph.query("""

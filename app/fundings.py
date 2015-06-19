@@ -1,93 +1,90 @@
 from vivo_namespace import VIVO, OBO, FOAF, VCARD
-import app.vivo_namespace as ns
-from vivo_uri import to_hash_identifier, PREFIX_GRANT, PREFIX_ORGANIZATION
 from rdflib import RDF, RDFS, XSD, Literal
 from utility import add_date, add_date_interval
 
 
-def crosswalk_funding(orcid_profile, person_uri, graph):
-    if "funding-list" in orcid_profile["orcid-profile"]["orcid-activities"] \
-            and orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"] \
-            and "funding" in orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]:
-        #Funding
-        fundings = orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]["funding"]
-        for funding in fundings:
-            if funding["funding-type"] == "GRANT":
+class FundingCrosswalk():
+    def __init__(self, identifier_strategy, create_strategy):
+        self.identifier_strategy = identifier_strategy
+        self.create_strategy = create_strategy
 
-                title = funding["funding-title"]["title"]["value"]
-                grant_uri = ns.D[to_hash_identifier(PREFIX_GRANT, (title,))]
-                #Type
-                graph.add((grant_uri, RDF.type, VIVO.Grant))
+    def crosswalk(self, orcid_profile, person_uri, graph):
+        if "funding-list" in orcid_profile["orcid-profile"]["orcid-activities"] \
+                and orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"] \
+                and "funding" in orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]:
+            #Funding
+            fundings = orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]["funding"]
+            for funding in fundings:
+                if funding["funding-type"] == "GRANT":
 
-                #Person
-                graph.add((grant_uri, VIVO.relates, person_uri))
+                    title = funding["funding-title"]["title"]["value"]
+                    grant_uri = self.identifier_strategy.to_uri(VIVO.Grant, {"title": title})
+                    #Type
+                    graph.add((grant_uri, RDF.type, VIVO.Grant))
 
-                #Title
-                graph.add((grant_uri, RDFS.label, Literal(title)))
+                    #Person
+                    graph.add((grant_uri, VIVO.relates, person_uri))
 
-                #Role
-                role_uri = grant_uri + "-role"
-                graph.add((role_uri, RDF.type, VIVO.PrincipalInvestigatorRole))
-                #Inheres in
-                graph.add((role_uri, OBO.RO_0000052, person_uri))
-                graph.add((role_uri, VIVO.relatedBy, grant_uri))
+                    #Title
+                    graph.add((grant_uri, RDFS.label, Literal(title)))
 
-                #Date interval
-                interval_uri = grant_uri + "-interval"
-                interval_start_uri = interval_uri + "-start"
-                interval_end_uri = interval_uri + "-end"
-                start_year = funding["start-date"]["year"]["value"] \
-                    if "start-date" in funding and "year" in funding["start-date"] else None
-                start_month = funding["start-date"]["month"]["value"] \
-                    if "start-date" in funding and "month" in funding["start-date"] else None
-                start_day = funding["start-date"]["day"]["value"] \
-                    if "start-date" in funding and "day" in funding["start-date"] else None
-                end_year = funding["end-date"]["year"]["value"] \
-                    if "end-date" in funding and "year" in funding["start-date"] else None
-                end_month = funding["end-date"]["month"]["value"] \
-                    if "end-date" in funding and "month" in funding["start-date"] else None
-                end_day = funding["end-date"]["day"]["value"] \
-                    if "end-date" in funding and "day" in funding["start-date"] else None
+                    #Role
+                    role_uri = self.identifier_strategy.to_uri(VIVO.PrincipalInvestigatorRole, {"grant_uri": grant_uri})
+                    graph.add((role_uri, RDF.type, VIVO.PrincipalInvestigatorRole))
+                    #Inheres in
+                    graph.add((role_uri, OBO.RO_0000052, person_uri))
+                    graph.add((role_uri, VIVO.relatedBy, grant_uri))
 
-                add_date_interval(interval_uri, grant_uri, graph,
-                                  interval_start_uri if add_date(interval_start_uri,
-                                                                 start_year,
-                                                                 graph,
-                                                                 start_month,
-                                                                 start_day) else None,
-                                  interval_end_uri if add_date(interval_end_uri,
-                                                               end_year,
-                                                               graph,
-                                                               end_month,
-                                                               end_day) else None)
+                    #Date interval
+                    interval_uri = grant_uri + "-interval"
+                    interval_start_uri = interval_uri + "-start"
+                    interval_end_uri = interval_uri + "-end"
+                    start_year = funding["start-date"]["year"]["value"] \
+                        if "start-date" in funding and "year" in funding["start-date"] else None
+                    start_month = funding["start-date"]["month"]["value"] \
+                        if "start-date" in funding and "month" in funding["start-date"] else None
+                    start_day = funding["start-date"]["day"]["value"] \
+                        if "start-date" in funding and "day" in funding["start-date"] else None
+                    end_year = funding["end-date"]["year"]["value"] \
+                        if "end-date" in funding and "year" in funding["start-date"] else None
+                    end_month = funding["end-date"]["month"]["value"] \
+                        if "end-date" in funding and "month" in funding["start-date"] else None
+                    end_day = funding["end-date"]["day"]["value"] \
+                        if "end-date" in funding and "day" in funding["start-date"] else None
 
-                #Award amount
-                if "amount" in funding:
-                    award_amount = "${:,}".format(int(funding["amount"]["value"]))
-                    graph.add((grant_uri, VIVO.totalAwardAmount, Literal(award_amount)))
+                    add_date_interval(grant_uri, graph, self.identifier_strategy,
+                                  add_date(start_year, graph, self.identifier_strategy, start_month, start_day),
+                                  add_date(end_year, graph, self.identifier_strategy, end_month, end_day))
 
-                #Awarded by
-                if "organization" in funding:
-                    organization_name = funding["organization"]["name"]
-                    organization_uri = ns.D[to_hash_identifier(PREFIX_ORGANIZATION, (organization_name,))]
-                    graph.add((organization_uri, RDF.type, FOAF.Organization))
-                    graph.add((organization_uri, RDFS.label, Literal(organization_name)))
-                    graph.add((grant_uri, VIVO.assignedBy, organization_uri))
+                    #Award amount
+                    if "amount" in funding:
+                        award_amount = "${:,}".format(int(funding["amount"]["value"]))
+                        graph.add((grant_uri, VIVO.totalAwardAmount, Literal(award_amount)))
 
-                #Identifiers
-                if "funding-external-identifiers" in funding:
-                    for external_identifier in funding["funding-external-identifiers"]["funding-external-identifier"]:
-                        if "funding-external-identifier-value" in external_identifier:
-                            graph.add((grant_uri, VIVO.sponsorAwardId,
-                                       Literal(external_identifier["funding-external-identifier-value"])))
-                        if "funding-external-identifier-url" in external_identifier:
-                            identifier_url = external_identifier["funding-external-identifier-url"]["value"]
-                            vcard_uri = ns.D[to_hash_identifier("vcard", (identifier_url,))]
-                            graph.add((vcard_uri, RDF.type, VCARD.Kind))
-                            #Has contact info
-                            graph.add((grant_uri, OBO.ARG_2000028, vcard_uri))
-                            #Url vcard
-                            vcard_url_uri = vcard_uri + "-url"
-                            graph.add((vcard_url_uri, RDF.type, VCARD.URL))
-                            graph.add((vcard_uri, VCARD.hasURL, vcard_url_uri))
-                            graph.add((vcard_url_uri, VCARD.url, Literal(identifier_url, datatype=XSD.anyURI)))
+                    #Awarded by
+                    if "organization" in funding:
+                        organization_name = funding["organization"]["name"]
+                        organization_uri = self.identifier_strategy.to_uri(FOAF.Organization,
+                                                                           {"name": organization_name})
+                        graph.add((grant_uri, VIVO.assignedBy, organization_uri))
+                        if self.create_strategy.should_create(FOAF.Organization, organization_uri):
+                            graph.add((organization_uri, RDF.type, FOAF.Organization))
+                            graph.add((organization_uri, RDFS.label, Literal(organization_name)))
+
+                    #Identifiers
+                    if "funding-external-identifiers" in funding:
+                        for external_identifier in funding["funding-external-identifiers"]["funding-external-identifier"]:
+                            if "funding-external-identifier-value" in external_identifier:
+                                graph.add((grant_uri, VIVO.sponsorAwardId,
+                                           Literal(external_identifier["funding-external-identifier-value"])))
+                            if "funding-external-identifier-url" in external_identifier:
+                                identifier_url = external_identifier["funding-external-identifier-url"]["value"]
+                                vcard_uri = self.identifier_strategy.to_uri(VCARD.Kind, {"url": identifier_url})
+                                graph.add((vcard_uri, RDF.type, VCARD.Kind))
+                                #Has contact info
+                                graph.add((grant_uri, OBO.ARG_2000028, vcard_uri))
+                                #Url vcard
+                                vcard_url_uri = self.identifier_strategy.to_uri(VCARD.URL, {"vcard_uri", vcard_uri})
+                                graph.add((vcard_url_uri, RDF.type, VCARD.URL))
+                                graph.add((vcard_uri, VCARD.hasURL, vcard_url_uri))
+                                graph.add((vcard_url_uri, VCARD.url, Literal(identifier_url, datatype=XSD.anyURI)))

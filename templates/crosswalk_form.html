@@ -107,10 +107,18 @@
         </fieldset>
         <br />
         <div class="form-group">
-            <label for="person_id" class="col-sm-2 control-label">Person ID:</label>
+            <label for="person_id" class="col-sm-2 control-label">Person Id:</label>
             <div class="col-sm-6">
                 <input type="text" class="form-control" id="person_id" name="person_id" value="{{ person_id if person_id != None }}">
                 <p class="help-block">If an id is not provided, the Orcid Id will be used.</p>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <label for="person_uri" class="col-sm-2 control-label">Person URI:</label>
+            <div class="col-sm-6">
+                <input type="text" class="form-control" id="person_uri" name="person_uri" value="{{ person_uri if person_uri != None }}">
+                <p class="help-block">A URI for the person.  If not provided, the Person Id or Orcid Id will be used.</p>
             </div>
 
         </div>
