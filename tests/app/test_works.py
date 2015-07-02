@@ -3,16 +3,25 @@
 
 from unittest import TestCase
 import json
-import app.works as works
+from app.works import WorksCrosswalk 
 import app.vivo_namespace as ns
 from rdflib import Graph, Literal, RDFS
+from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo import SimpleCreateEntitiesStrategy
 
+#Saving this because will be monkey patching
+orig_fetch_crossref_doi = WorksCrosswalk._fetch_crossref_doi
 
 class TestWorks(TestCase):
 
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
+        self.create_strategy = SimpleCreateEntitiesStrategy(person_uri=self.person_uri)
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(orig_fetch_crossref_doi)
+        self.crosswalker = WorksCrosswalk(identifier_strategy=HashIdentifierStrategy(),
+                                          create_strategy=self.create_strategy)
+
 
     def test_no_actitivities(self):
         orcid_profile = json.loads("""
@@ -23,7 +32,7 @@ class TestWorks(TestCase):
     }
 }
         """)
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_no_works(self):
@@ -37,7 +46,7 @@ class TestWorks(TestCase):
     }
 }
         """)
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_only_handled_work_types(self):
@@ -57,7 +66,7 @@ class TestWorks(TestCase):
     }
 }
         """)
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_orcid_title_no_subtitle(self):
@@ -95,7 +104,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
             "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?")]))
 
@@ -136,7 +145,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
             "Substance use disorder among people with first-episode psychosis: A systematic review of course and treatment")]))
 
@@ -179,7 +188,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
             "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?")]))
 
@@ -233,15 +242,15 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "title": [
         "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
     ]
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
             "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?")]))
 
@@ -277,7 +286,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -330,13 +339,13 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "publisher": "Ovid Technologies (Wolters Kluwer Health)"
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -378,7 +387,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["volume"]: Literal("20")]))
         self.assertTrue(list(self.graph[: ns.BIBO["issue"]: Literal("PART F")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageStart"]: Literal("323")]))
@@ -427,15 +436,14 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "page": "1516-1524",
     "issue": "87",
     "volume": "11"
 }
-        """)
-
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        """))
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["volume"]: Literal("11")]))
         self.assertTrue(list(self.graph[: ns.BIBO["issue"]: Literal("87")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageStart"]: Literal("1516")]))
@@ -488,7 +496,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -543,7 +551,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -609,13 +617,13 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "issued":{"date-parts":[[2012,10,31]]}
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -681,13 +689,13 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "issued":{"date-parts":[[2012]]}
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -737,7 +745,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -787,7 +795,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -835,7 +843,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Chapter .
@@ -894,13 +902,13 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "subject":["Health(social science)","Public Health, Environmental and Occupational Health","Health Policy"]
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -962,13 +970,13 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "author":[{"affiliation":[],"family":"Ginther","given":"Donna K."},{"affiliation":[],"family":"Haak","given":"Laurel L."},{"affiliation":[],"family":"Schaffer","given":"Walter T."},{"affiliation":[],"family":"Kington","given":"Raynard"}]
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1063,7 +1071,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1119,7 +1127,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1175,7 +1183,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1258,7 +1266,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1317,7 +1325,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1376,7 +1384,7 @@ class TestWorks(TestCase):
     }
 }        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1435,7 +1443,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Chapter .
@@ -1498,7 +1506,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -1553,12 +1561,12 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1620,7 +1628,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn13"]: Literal("978-84-697-0505-6")]))
 
     def test_isbn10(self):
@@ -1672,7 +1680,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn10"]: Literal("978-84-697-05")]))
 
     def test_bibtex_doi(self):
@@ -1707,7 +1715,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -1758,7 +1766,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn13"]: Literal("978-1-4614-7332-9")]))
 
     def test_orcid_url(self):
@@ -1798,7 +1806,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.VCARD["url"]: ]))
         self.assertTrue(bool(self.graph.query("""
             ask where {
@@ -1851,7 +1859,7 @@ class TestWorks(TestCase):
 }
        """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertFalse(list(self.graph[: ns.VCARD["url"]: ]))
 
     def test_bibtex_url(self):
@@ -1886,7 +1894,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(list(self.graph[: ns.VCARD["url"]:]))
         self.assertTrue(bool(self.graph.query("""
             ask where {
@@ -1931,7 +1939,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertFalse(list(self.graph[: ns.VCARD["url"]:]))
 
     def test_bibtex_journal(self):
@@ -1973,7 +1981,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2034,14 +2042,14 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.fetch_crossref_doi = lambda doi: json.loads("""
+        WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "container-title": ["Academic Medicine", "Acad. Med."],
     "ISSN": ["1040-2446", "1938-808X"]
 }
-        """)
+        """))
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2091,7 +2099,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2180,7 +2188,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Issue .
@@ -2235,7 +2243,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Article .
@@ -2286,7 +2294,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Article .
@@ -2347,7 +2355,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Document .
@@ -2398,7 +2406,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a vivo:ConferencePaper .
@@ -2465,7 +2473,7 @@ class TestWorks(TestCase):
 }
         """)
 
-        works.crosswalk_works(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Patent .

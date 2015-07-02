@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, Response, flash, Mar
 import argparse
 import json
 import urllib
-import orcid2vivo
+from orcid2vivo import default_execute
 import app.utility as utility
 
 app = Flask(__name__)
@@ -56,11 +56,13 @@ def crosswalk():
     session["output_html"] = True if "output_html" in request.form else False
     session["output_profile"] = True if "output_profile" in request.form else False
 
-    (g, p, per_uri) = orcid2vivo.crosswalk(request.form['orcid_id'],
-                                           person_class=person_class if person_class != "Person" else None,
-                                           skip_person=True if "skip_person" in request.form else False,
-                                           vivo_person_id=request.form["person_id"],
-                                           namespace=request.form["namespace"])
+    #Excute with default strategies
+    (g, p, per_uri) = default_execute(request.form["orcid_id"],
+                                      namespace=request.form["namespace"],
+                                      person_uri=request.form["person_uri"],
+                                      person_id=request.form["person_id"],
+                                      skip_person=True if "skip_person" in request.form else False,
+                                      person_class=person_class if person_class != "Person" else None)
 
     if "output" in request.form and request.form["output"] == "vivo":
         utility.sparql_insert(g, endpoint, request.form["username"], request.form["password"])

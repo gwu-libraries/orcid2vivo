@@ -1,46 +1,75 @@
 import requests
 import argparse
 import codecs
-from rdflib import Literal, Graph
+from rdflib import Literal, Graph, URIRef
 from rdflib.namespace import Namespace
+from app.vivo_uri import HashIdentifierStrategy
 from app.vivo_namespace import VIVO, FOAF
-from app.affiliations import crosswalk_affiliations
-from app.bio import crosswalk_bio
-from app.fundings import crosswalk_funding
-from app.works import crosswalk_works
+from app.affiliations import AffiliationsCrosswalk
+from app.bio import BioCrosswalk
+from app.fundings import FundingCrosswalk
+from app.works import WorksCrosswalk
 from app.utility import sparql_insert, clean_orcid
 import app.vivo_namespace as ns
 
 
-def crosswalk(orcid_id, vivo_person_id=None, person_class=None, skip_person=False, namespace=None):
+class SimpleCreateEntitiesStrategy():
+    """
+    A minimally configurable strategy for determining if ancillary entities
+    should be created.
 
-    #Set default VIVO namespace
-    if namespace:
-        ns.D = Namespace(namespace)
-        ns.ns_manager.bind('d', ns.D, replace=True)
+    Except for a few configurable options, entities are always created.
 
-    #Create an RDFLib Graph
-    graph = Graph(namespace_manager=ns.ns_manager)
+    Other implementations must implement should_create().
+    """
+    def __init__(self, skip_person=False, person_uri=None):
+        self.skip_person = skip_person
+        self.person_uri = person_uri
 
-    #0000-0003-3441-946X
-    orcid = clean_orcid(orcid_id)
-    orcid_profile = fetch_orcid_profile(orcid)
+    def should_create(self, clazz, uri):
+        """
+        Determine whether an entity should be created.
+        :param clazz: Class of the entity.
+        :param uri: URI of the entity.
+        :return: True if the entity should be created.
+        """
+        if self.skip_person and self.person_uri == uri:
+            return False
+        return True
 
-    #Determine the class to use for the person
-    person_clazz = FOAF.Person
-    if person_class:
-        person_clazz = getattr(VIVO, person_class)
 
-    #ORCID
-    person_uri = ns.D[vivo_person_id or orcid]
-    graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid)))
+class PersonCrosswalk():
+    def __init__(self, identifier_strategy=HashIdentifierStrategy(), create_strategy=SimpleCreateEntitiesStrategy()):
+        self.identifier_strategy = identifier_strategy
+        self.create_strategy = create_strategy
+        self.bio_crosswalker = BioCrosswalk(identifier_strategy, create_strategy)
+        self.affiliations_crosswalker = AffiliationsCrosswalk(identifier_strategy, create_strategy)
+        self.funding_crosswalker = FundingCrosswalk(identifier_strategy, create_strategy)
+        self.works_crosswalker = WorksCrosswalk(identifier_strategy, create_strategy)
 
-    crosswalk_bio(orcid_profile, person_uri, graph, person_class=person_clazz, skip_person=skip_person)
-    crosswalk_works(orcid_profile, person_uri, graph)
-    crosswalk_affiliations(orcid_profile, person_uri, graph)
-    crosswalk_funding(orcid_profile, person_uri, graph)
+    def crosswalk(self, orcid_id, person_uri, person_class=None):
 
-    return graph, orcid_profile, person_uri
+        #Create an RDFLib Graph
+        graph = Graph(namespace_manager=ns.ns_manager)
+
+        #0000-0003-3441-946X
+        orcid = clean_orcid(orcid_id)
+        orcid_profile = fetch_orcid_profile(orcid)
+
+        #Determine the class to use for the person
+        person_clazz = FOAF.Person
+        if person_class:
+            person_clazz = getattr(VIVO, person_class)
+
+        #ORCID
+        graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid)))
+
+        self.bio_crosswalker.crosswalk(orcid_profile, person_uri, graph, person_class=person_clazz)
+        self.works_crosswalker.crosswalk(orcid_profile, person_uri, graph)
+        self.affiliations_crosswalker.crosswalk(orcid_profile, person_uri, graph)
+        self.funding_crosswalker.crosswalk(orcid_profile, person_uri, graph)
+
+        return graph, orcid_profile, person_uri
 
 
 def fetch_orcid_profile(orcid_id):
@@ -52,6 +81,26 @@ def fetch_orcid_profile(orcid_id):
         return r.json()
     else:
         raise Exception("Request to fetch ORCID profile for %s returned %s" % (id, r.status_code))
+
+
+def set_namespace(namespace=None):
+    #Set default VIVO namespace
+    if namespace:
+        ns.D = Namespace(namespace)
+        ns.ns_manager.bind('d', ns.D, replace=True)
+
+def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, skip_person=False, person_class=None):
+    #Set namespace
+    set_namespace(namespace)
+
+    this_identifier_strategy = HashIdentifierStrategy()
+    this_person_uri = URIRef(person_uri) if person_uri \
+        else this_identifier_strategy.to_uri(FOAF.Person, {"id": person_id or orcid_id})
+
+    this_create_strategy = SimpleCreateEntitiesStrategy(skip_person=skip_person, person_uri=this_person_uri)
+
+    crosswalker = PersonCrosswalk(create_strategy=this_create_strategy, identifier_strategy=this_identifier_strategy)
+    return crosswalker.crosswalk(orcid_id, this_person_uri, person_class=person_class)
 
 
 if __name__ == '__main__':
@@ -68,6 +117,8 @@ if __name__ == '__main__':
                         help="Password for VIVO root.")
     parser.add_argument("--person-id", dest="person_id", help="Id for the person to use when constructing the person's "
                                                               "URI. If not provided, the orcid id will be used.")
+    parser.add_argument("--person-uri", dest="person_uri", help="A URI for the person. If not provided, one will be "
+                                                                "created from the orcid id or person id.")
     parser.add_argument("--namespace", default="http://vivo.mydomain.edu/individual/",
                         help="VIVO namespace. Default is http://vivo.mydomain.edu/individual/.")
     parser.add_argument("--person-class", dest="person_class",
@@ -80,8 +131,10 @@ if __name__ == '__main__':
     #Parse
     args = parser.parse_args()
 
-    (g, p, per_uri) = crosswalk(args.orcid_id, vivo_person_id=args.person_id, person_class=args.person_class,
-                                skip_person=args.skip_person, namespace=args.namespace)
+    #Excute with default strategies
+    (g, p, per_uri) = default_execute(args.orcid_id, namespace=args.namespace, person_uri=args.person_uri,
+                                      person_id=args.person_id, skip_person=args.skip_person,
+                                      person_class=args.person_class)
 
     #Write to file
     if args.file:
@@ -97,5 +150,3 @@ if __name__ == '__main__':
     #If not writing to file to posting to SPARQL Update then serialize to stdout
     if not args.file and not args.endpoint:
         print g.serialize(format=args.format)
-
-    #TODO Add logging

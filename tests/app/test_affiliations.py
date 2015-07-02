@@ -1,8 +1,10 @@
 from unittest import TestCase
 import json
-import app.affiliations as affil
+from app.affiliations import AffiliationsCrosswalk
 import app.vivo_namespace as ns
 from rdflib import Graph
+from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo import SimpleCreateEntitiesStrategy
 
 
 class TestAffiliations(TestCase):
@@ -10,6 +12,9 @@ class TestAffiliations(TestCase):
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
+        self.create_strategy = SimpleCreateEntitiesStrategy(person_uri=self.person_uri)
+        self.crosswalker = AffiliationsCrosswalk(identifier_strategy=HashIdentifierStrategy(),
+                                        create_strategy=self.create_strategy)
 
     def test_no_activities(self):
         orcid_profile = json.loads("""
@@ -20,7 +25,7 @@ class TestAffiliations(TestCase):
     }
 }
         """)
-        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_no_affiliations(self):
@@ -34,7 +39,7 @@ class TestAffiliations(TestCase):
     }
 }
         """)
-        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_no_education(self):
@@ -103,7 +108,7 @@ class TestAffiliations(TestCase):
     }
 }
         """)
-        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_education(self):
@@ -179,7 +184,7 @@ class TestAffiliations(TestCase):
     }
 }
         """)
-        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?awdgre a vivo:AwardedDegree .
@@ -261,7 +266,7 @@ class TestAffiliations(TestCase):
     }
 }
         """)
-        affil.crosswalk_affiliations(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?org a foaf:Organization .

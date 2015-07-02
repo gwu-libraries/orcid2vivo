@@ -73,13 +73,14 @@ def month_int_to_month_str(month_int):
     return months[month_int-1]
 
 
-def add_date(date_uri, year, g, month=None, day=None, label=None):
+def add_date(year, g, identifier_strategy, month=None, day=None, label=None):
     """
     Adds triples for a date.
 
     Return True if date was added.
     """
     #Date
+    date_uri = identifier_strategy.to_uri(VIVO.DateTimeValue, {"year": year, "month": month, "day": day})
     if year:
         g.add((date_uri, RDF.type, VIVO.DateTimeValue))
         #Day, month, and year
@@ -110,21 +111,25 @@ def add_date(date_uri, year, g, month=None, day=None, label=None):
                        year),
                        datatype=XSD.dateTime)))
             g.add((date_uri, RDFS.label, Literal(label or num_to_str(year))))
-        return True
-    return False
+        return date_uri
+    return None
 
 
-def add_date_interval(interval_uri, subject_uri, g, start_uri=None, end_uri=None):
+def add_date_interval(subject_uri, g, identifier_strategy, start_uri=None, end_uri=None):
     """
     Adds triples for a date interval.
     """
     if start_uri or end_uri:
+        interval_uri = identifier_strategy.to_uri(VIVO.DateTimeInterval, {"subject_uri": subject_uri,
+                                                                          "start_uri": start_uri, "end_uri": end_uri})
         g.add((interval_uri, RDF.type, VIVO.DateTimeInterval))
         g.add((subject_uri, VIVO.dateTimeInterval, interval_uri))
         if start_uri:
             g.add((interval_uri, VIVO.start, start_uri))
         if end_uri:
             g.add((interval_uri, VIVO.end, end_uri))
+        return interval_uri
+    return None
 
 
 def sparql_insert(graph, endpoint, username, password):
