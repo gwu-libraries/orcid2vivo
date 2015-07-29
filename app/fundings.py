@@ -67,8 +67,8 @@ class FundingCrosswalk():
                             if "funding-external-identifier-value" in external_identifier:
                                 graph.add((grant_uri, VIVO.sponsorAwardId,
                                            Literal(external_identifier["funding-external-identifier-value"])))
-                            if "funding-external-identifier-url" in external_identifier:
-                                identifier_url = external_identifier["funding-external-identifier-url"]["value"]
+                            identifier_url = (external_identifier.get("funding-external-identifier-url", {}) or {}).get("value")
+                            if identifier_url:
                                 vcard_uri = self.identifier_strategy.to_uri(VCARD.Kind, {"url": identifier_url})
                                 graph.add((vcard_uri, RDF.type, VCARD.Kind))
                                 #Has contact info
