@@ -115,8 +115,8 @@ class WorksCrosswalk():
 
                 #Work-type
                 work_class = work_type_map[work_type]
-                if work_type == "TRANSLATION" and bibtex and bibtex["type"] in bibtex_type_map:
-                    work_class = bibtex_type_map[bibtex["type"]]
+                if work_type == "TRANSLATION" and bibtex and bibtex["ENTRYTYPE"] in bibtex_type_map:
+                    work_class = bibtex_type_map[bibtex["ENTRYTYPE"]]
 
                 #Construct work uri
                 work_uri = self.identifier_strategy.to_uri(work_class, {"name": title})

@@ -1,6 +1,6 @@
-rdflib
-requests
-bibtexparser
-flask
-vcrpy
-mock
+rdflib==4.2.0
+requests==2.7.0
+bibtexparser==0.6.1
+flask==0.10.1
+vcrpy==1.7.0
+mock==1.3.0
