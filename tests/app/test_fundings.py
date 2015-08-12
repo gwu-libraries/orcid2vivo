@@ -1,7 +1,5 @@
 from unittest import TestCase
-import json
-import os
-
+from tests import FIXTURE_PATH
 from app.fundings import FundingCrosswalk
 import orcid2vivo
 import app.vivo_namespace as ns
@@ -10,10 +8,6 @@ from orcid2vivo import SimpleCreateEntitiesStrategy
 
 from rdflib import Graph, RDFS
 import vcr
-
-FIXTURE_PATH = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'fixtures'
-)
 
 my_vcr = vcr.VCR(
     cassette_library_dir=FIXTURE_PATH,

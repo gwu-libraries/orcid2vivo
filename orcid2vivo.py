@@ -89,6 +89,7 @@ def set_namespace(namespace=None):
         ns.D = Namespace(namespace)
         ns.ns_manager.bind('d', ns.D, replace=True)
 
+
 def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, skip_person=False, person_class=None):
     #Set namespace
     set_namespace(namespace)

@@ -113,7 +113,6 @@ if __name__ == "__main__":
     def_person_class = args.person_class
     def_skip_person = args.skip_person
 
-
     app.debug = args.debug
     app.secret_key = "orcid2vivo"
     app.run(host="0.0.0.0", port=args.port)

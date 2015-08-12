@@ -311,7 +311,7 @@ class WorksCrosswalk():
         r = requests.get('http://api.crossref.org/works/%s' % doi)
         if r.status_code == 404:
             #Not a crossref DOI.
-            return None
+            return {}
         if r:
             return r.json()["message"]
         else:

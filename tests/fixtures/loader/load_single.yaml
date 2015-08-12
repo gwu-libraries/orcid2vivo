@@ -1,0 +1,1112 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept: [application/orcid+json]
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://pub.orcid.org/v1.2/0000-0003-1527-0030/orcid-profile
+  response:
+    body: {string: !!python/unicode "{\n  \"message-version\" : \"1.2\",\n  \"orcid-profile\"
+        : {\n    \"orcid\" : null,\n    \"orcid-id\" : null,\n    \"orcid-identifier\"
+        : {\n      \"value\" : null,\n      \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \     \"path\" : \"0000-0003-1527-0030\",\n      \"host\" : \"orcid.org\"\n
+        \   },\n    \"orcid-deprecated\" : null,\n    \"orcid-preferences\" : {\n
+        \     \"locale\" : \"EN\"\n    },\n    \"orcid-history\" : {\n      \"creation-method\"
+        : \"DIRECT\",\n      \"completion-date\" : null,\n      \"submission-date\"
+        : {\n        \"value\" : 1424366272062\n      },\n      \"last-modified-date\"
+        : {\n        \"value\" : 1437746074778\n      },\n      \"claimed\" : {\n
+        \       \"value\" : true\n      },\n      \"source\" : null,\n      \"deactivation-date\"
+        : null,\n      \"verified-email\" : {\n        \"value\" : true\n      },\n
+        \     \"verified-primary-email\" : {\n        \"value\" : true\n      },\n
+        \     \"visibility\" : null\n    },\n    \"orcid-bio\" : {\n      \"personal-details\"
+        : {\n        \"given-names\" : {\n          \"value\" : \"Justin\"\n        },\n
+        \       \"family-name\" : {\n          \"value\" : \"Littman\"\n        },\n
+        \       \"credit-name\" : null,\n        \"other-names\" : null\n      },\n
+        \     \"biography\" : null,\n      \"researcher-urls\" : {\n        \"researcher-url\"
+        : [ {\n          \"url-name\" : {\n            \"value\" : \"Github\"\n          },\n
+        \         \"url\" : {\n            \"value\" : \"https://github.com/justinlittman\"\n
+        \         }\n        }, {\n          \"url-name\" : {\n            \"value\"
+        : \"Twitter\"\n          },\n          \"url\" : {\n            \"value\"
+        : \"https://twitter.com/justin_littman\"\n          }\n        }, {\n          \"url-name\"
+        : {\n            \"value\" : \"LinkedIn\"\n          },\n          \"url\"
+        : {\n            \"value\" : \"https://www.linkedin.com/pub/justin-littman/a7/aa3/11a\"\n
+        \         }\n        } ],\n        \"visibility\" : \"PUBLIC\"\n      },\n
+        \     \"contact-details\" : null,\n      \"keywords\" : {\n        \"keyword\"
+        : [ {\n          \"value\" : \"\"\n        } ],\n        \"visibility\" :
+        \"PUBLIC\"\n      },\n      \"external-identifiers\" : {\n        \"external-identifier\"
+        : [ {\n          \"orcid\" : null,\n          \"external-id-orcid\" : null,\n
+        \         \"external-id-common-name\" : {\n            \"value\" : \"Scopus
+        Author ID\"\n          },\n          \"external-id-reference\" : {\n            \"value\"
+        : \"55926744500\"\n          },\n          \"external-id-url\" : {\n            \"value\"
+        : \"http://www.scopus.com/inward/authorDetails.url?authorID=55926744500&partnerID=MN8TOARS\"\n
+        \         },\n          \"external-id-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-5982-8983\",\n              \"path\" : \"0000-0002-5982-8983\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : null,\n            \"source-date\"
+        : null\n          }\n        } ],\n        \"visibility\" : \"PUBLIC\"\n      },\n
+        \     \"delegation\" : null,\n      \"applications\" : null,\n      \"scope\"
+        : null\n    },\n    \"orcid-activities\" : {\n      \"affiliations\" : {\n
+        \       \"affiliation\" : [ {\n          \"type\" : \"EMPLOYMENT\",\n          \"department-name\"
+        : \"Scholarly Technology Group, Gelman Library\",\n          \"role-title\"
+        : \"Software Developer / Librarian\",\n          \"start-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2014\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"end-date\"
+        : null,\n          \"organization\" : {\n            \"name\" : \"George Washington
+        University\",\n            \"address\" : {\n              \"city\" : \"Washington\",\n
+        \             \"region\" : \"DC\",\n              \"country\" : \"US\"\n            },\n
+        \           \"disambiguated-organization\" : {\n              \"disambiguated-organization-identifier\"
+        : \"8367\",\n              \"disambiguation-source\" : \"RINGGOLD\"\n            }\n
+        \         },\n          \"source\" : {\n            \"source-orcid\" : {\n
+        \             \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367082233\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367082233\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424367765508\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742819\"\n        }, {\n          \"type\"
+        : \"EMPLOYMENT\",\n          \"department-name\" : \"Repository Development
+        Center, Office of Strategic Initiatives\",\n          \"role-title\" : \"Software
+        Developer\",\n          \"start-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2003\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null\n          },\n          \"end-date\" : {\n            \"year\" : {\n
+        \             \"value\" : \"2014\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"organization\"
+        : {\n            \"name\" : \"Library of Congress\",\n            \"address\"
+        : {\n              \"city\" : \"Washington\",\n              \"region\" :
+        \"DC\",\n              \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"8386\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367025562\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367025562\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424367787455\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742815\"\n        }, {\n          \"type\"
+        : \"EDUCATION\",\n          \"department-name\" : null,\n          \"role-title\"
+        : \"M.L.I.S.\",\n          \"start-date\" : null,\n          \"end-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2002\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null\n          },\n
+        \         \"organization\" : {\n            \"name\" : \"University of Denver\",\n
+        \           \"address\" : {\n              \"city\" : \"Denver\",\n              \"region\"
+        : \"CO\",\n              \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"2927\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424366945628\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424366945628\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424366945628\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742812\"\n        }, {\n          \"type\"
+        : \"EDUCATION\",\n          \"department-name\" : null,\n          \"role-title\"
+        : \"B.A.\",\n          \"start-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"1990\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null\n          },\n          \"end-date\" : {\n            \"year\" : {\n
+        \             \"value\" : \"1995\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"organization\"
+        : {\n            \"name\" : \"Amherst College\",\n            \"address\"
+        : {\n              \"city\" : \"Amherst\",\n              \"region\" : \"MA\",\n
+        \             \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"1180\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424366833252\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424366833252\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424366833252\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742807\"\n        } ]\n      },\n
+        \     \"orcid-works\" : {\n        \"orcid-work\" : [ {\n          \"put-code\"
+        : \"15473532\",\n          \"work-title\" : {\n            \"title\" : {\n
+        \             \"value\" : \"A Set of Transfer-Related Services\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : {\n            \"value\" : \"D-Lib
+        Magazine\"\n          },\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article{Littman_2009,doi = {10.1045/january2009-littman},url = {http://dx.doi.org/10.1045/january2009-littman},year
+        = 2009,month = {jan},publisher = {{CNRI} Acct},volume = {15},number = {1/2},author
+        = {Justin Littman},title = {A Set of Transfer-Related Services},journal =
+        {D-Lib Magazine}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n
+        \         \"publication-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2009\"\n            },\n            \"month\" : {\n              \"value\"
+        : \"01\"\n            },\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/january2009-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin Littman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367147211\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367147211\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073797\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473566\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A set of transfer-related
+        services\"\n            },\n            \"subtitle\" : null,\n            \"translated-title\"
+        : null\n          },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2009,title =
+        {A set of transfer-related services},journal = {D-Lib Magazine},year = {2009},volume
+        = {15},number = {1-2},author = {Littman, J.}}\"\n          },\n          \"work-type\"
+        : \"JOURNAL_ARTICLE\",\n          \"publication-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2009\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null,\n            \"media-type\" : null\n
+        \         },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-70449466165\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-70449466165&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367433520\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367433520\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074730\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473531\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"Actualized Preservation
+        Threats\"\n            },\n            \"subtitle\" : {\n              \"value\"
+        : \"Practical Lessons from Chronicling America\"\n            },\n            \"translated-title\"
+        : null\n          },\n          \"journal-title\" : {\n            \"value\"
+        : \"D-Lib Magazine\"\n          },\n          \"short-description\" : null,\n
+        \         \"work-citation\" : {\n            \"work-citation-type\" : \"BIBTEX\",\n
+        \           \"citation\" : \"@article{Littman_2007,doi = {10.1045/july2007-littman},url
+        = {http://dx.doi.org/10.1045/july2007-littman},year = 2007,month = {jul},publisher
+        = {{CNRI} Acct},volume = {13},number = {7/8},author = {Justin Littman},title
+        = {Actualized Preservation Threats},journal = {D-Lib Magazine}}\"\n          },\n
+        \         \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2007\"\n            },\n
+        \           \"month\" : {\n              \"value\" : \"07\"\n            },\n
+        \           \"day\" : null,\n            \"media-type\" : null\n          },\n
+        \         \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/july2007-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin Littman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367141773\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367141773\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073739\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473562\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"Actualized preservation
+        threats: Practical lessons from chronicling America\"\n            },\n            \"subtitle\"
+        : null,\n            \"translated-title\" : null\n          },\n          \"journal-title\"
+        : null,\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article { littman2007,title = {Actualized preservation threats: Practical
+        lessons from chronicling America},journal = {D-Lib Magazine},year = {2007},volume
+        = {13},number = {7-8},author = {Littman, J.}}\"\n          },\n          \"work-type\"
+        : \"JOURNAL_ARTICLE\",\n          \"publication-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2007\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null,\n            \"media-type\" : null\n
+        \         },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/july2007-littman\"\n              }\n
+        \           }, {\n              \"work-external-identifier-type\" : \"EID\",\n
+        \             \"work-external-identifier-id\" : {\n                \"value\"
+        : \"2-s2.0-34548293277\"\n              }\n            } ],\n            \"scope\"
+        : null\n          },\n          \"url\" : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-34548293277&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367298781\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367298781\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074546\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473533\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A Technical Approach
+        and Distributed Model for Validation of Digital Objects\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : {\n            \"value\" : \"D-Lib
+        Magazine\"\n          },\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article{LIttman_2006,doi = {10.1045/may2006-littman},url = {http://dx.doi.org/10.1045/may2006-littman},year
+        = 2006,month = {may},publisher = {{CNRI} Acct},volume = {12},number = {5},author
+        = {Justin LIttman},title = {A Technical Approach and Distributed Model for
+        Validation of Digital Objects},journal = {D-Lib Magazine}}\"\n          },\n
+        \         \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2006\"\n            },\n
+        \           \"month\" : {\n              \"value\" : \"05\"\n            },\n
+        \           \"day\" : null,\n            \"media-type\" : null\n          },\n
+        \         \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/may2006-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin LIttman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367155883\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367155883\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073867\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473563\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A technical approach
+        and distributed model for validation of digital objects\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2006,title =
+        {A technical approach and distributed model for validation of digital objects},journal
+        = {D-Lib Magazine},year = {2006},volume = {12},number = {5},pages = {37-46},author
+        = {Littman, J.}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n
+        \         \"publication-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2006\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null,\n            \"media-type\" : null\n          },\n          \"work-external-identifiers\"
+        : {\n            \"work-external-identifier\" : [ {\n              \"work-external-identifier-type\"
+        : \"DOI\",\n              \"work-external-identifier-id\" : {\n                \"value\"
+        : \"10.1045/may2006-littman\"\n              }\n            }, {\n              \"work-external-identifier-type\"
+        : \"EID\",\n              \"work-external-identifier-id\" : {\n                \"value\"
+        : \"2-s2.0-33646743434\"\n              }\n            } ],\n            \"scope\"
+        : null\n          },\n          \"url\" : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-33646743434&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367298784\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367298784\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074579\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473567\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A framework for
+        object preservation in digital repositories\"\n            },\n            \"subtitle\"
+        : null,\n            \"translated-title\" : null\n          },\n          \"journal-title\"
+        : null,\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article { littman2006,title = {A framework for object preservation in
+        digital repositories},journal = {Archiving 2006 - Final Program and Proceedings},year
+        = {2006},pages = {79-83},author = {Boyko, A. and Hamidzadeh, B. and Littman,
+        J.}}\"\n          },\n          \"work-type\" : \"CONFERENCE_PAPER\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2006\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-36048985393\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-36048985393&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Boyko, A.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            }, {\n              \"contributor-orcid\"
+        : null,\n              \"credit-name\" : {\n                \"value\" : \"Hamidzadeh,
+        B.\",\n                \"visibility\" : \"PUBLIC\"\n              },\n              \"contributor-email\"
+        : null,\n              \"contributor-attributes\" : null\n            }, {\n
+        \             \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367433526\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367433526\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074771\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473568\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A circulation
+        analysis of print books and e-books in an academic research library\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2004,title =
+        {A circulation analysis of print books and e-books in an academic research
+        library},journal = {Library Resources and Technical Services},year = {2004},volume
+        = {48},number = {4},pages = {256-262},author = {Littman, J. and Connaway,
+        L.S.}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2004\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-10144239002\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-10144239002&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            }, {\n              \"contributor-orcid\"
+        : null,\n              \"credit-name\" : {\n                \"value\" : \"Connaway,
+        L.S.\",\n                \"visibility\" : \"PUBLIC\"\n              },\n              \"contributor-email\"
+        : null,\n              \"contributor-attributes\" : null\n            } ]\n
+        \         },\n          \"work-source\" : null,\n          \"source\" : {\n
+        \           \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-5982-8983\",\n              \"path\" : \"0000-0002-5982-8983\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"Scopus
+        to ORCID\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367433532\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367433532\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074810\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       } ],\n        \"scope\" : null\n      },\n      \"funding-list\" :
+        null\n    },\n    \"orcid-internal\" : null,\n    \"type\" : \"USER\",\n    \"group-type\"
+        : null,\n    \"client-type\" : null\n  },\n  \"orcid-search-results\" : null,\n
+        \ \"error-desc\" : null\n}"}
+    headers:
+      access-control-allow-origin: ['*']
+      connection: [keep-alive]
+      content-type: [application/orcid+json; qs=2;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:27 GMT']
+      server: [nginx/1.1.19]
+      set-cookie: [X-Mapping-fjhppofk=88C859A65F96A9D2101D5CDCBDC853EB; path=/]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/january2009-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433523545315},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"1\/2","DOI":"10.1045\/january2009-littman","type":"journal-article","source":"CrossRef","title":["A
+        Set of Transfer-Related Services"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"15","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2009,1,15]],"timestamp":1231977600000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2009,1]]},"URL":"http:\/\/dx.doi.org\/10.1045\/january2009-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['799']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:27 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/july2007-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433507573635},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"7\/8","DOI":"10.1045\/july2007-littman","type":"journal-article","source":"CrossRef","title":["Actualized
+        Preservation Threats"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"13","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,7,16]],"timestamp":1184544000000},"score":1.0,"subtitle":["Practical
+        Lessons from Chronicling America"],"issued":{"date-parts":[[2007,7]]},"URL":"http:\/\/dx.doi.org\/10.1045\/july2007-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['834']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:27 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/july2007-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433507573635},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"7\/8","DOI":"10.1045\/july2007-littman","type":"journal-article","source":"CrossRef","title":["Actualized
+        Preservation Threats"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"13","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,7,16]],"timestamp":1184544000000},"score":1.0,"subtitle":["Practical
+        Lessons from Chronicling America"],"issued":{"date-parts":[[2007,7]]},"URL":"http:\/\/dx.doi.org\/10.1045\/july2007-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['834']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:27 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/may2006-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,2,8]],"timestamp":1423410007877},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"5","DOI":"10.1045\/may2006-littman","type":"journal-article","source":"CrossRef","title":["A
+        Technical Approach and Distributed Model for Validation of Digital Objects"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"12","author":[{"affiliation":[],"family":"LIttman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,2,13]],"timestamp":1171324800000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2006,5]]},"URL":"http:\/\/dx.doi.org\/10.1045\/may2006-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['830']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:28 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/may2006-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,2,8]],"timestamp":1423410007877},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"5","DOI":"10.1045\/may2006-littman","type":"journal-article","source":"CrossRef","title":["A
+        Technical Approach and Distributed Model for Validation of Digital Objects"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"12","author":[{"affiliation":[],"family":"LIttman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,2,13]],"timestamp":1171324800000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2006,5]]},"URL":"http:\/\/dx.doi.org\/10.1045\/may2006-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['830']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:28 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: [application/orcid+json]
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://pub.orcid.org/v1.2/0000-0003-1527-0030/orcid-profile
+  response:
+    body: {string: !!python/unicode "{\n  \"message-version\" : \"1.2\",\n  \"orcid-profile\"
+        : {\n    \"orcid\" : null,\n    \"orcid-id\" : null,\n    \"orcid-identifier\"
+        : {\n      \"value\" : null,\n      \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \     \"path\" : \"0000-0003-1527-0030\",\n      \"host\" : \"orcid.org\"\n
+        \   },\n    \"orcid-deprecated\" : null,\n    \"orcid-preferences\" : {\n
+        \     \"locale\" : \"EN\"\n    },\n    \"orcid-history\" : {\n      \"creation-method\"
+        : \"DIRECT\",\n      \"completion-date\" : null,\n      \"submission-date\"
+        : {\n        \"value\" : 1424366272062\n      },\n      \"last-modified-date\"
+        : {\n        \"value\" : 1437746074778\n      },\n      \"claimed\" : {\n
+        \       \"value\" : true\n      },\n      \"source\" : null,\n      \"deactivation-date\"
+        : null,\n      \"verified-email\" : {\n        \"value\" : true\n      },\n
+        \     \"verified-primary-email\" : {\n        \"value\" : true\n      },\n
+        \     \"visibility\" : null\n    },\n    \"orcid-bio\" : {\n      \"personal-details\"
+        : {\n        \"given-names\" : {\n          \"value\" : \"Justin\"\n        },\n
+        \       \"family-name\" : {\n          \"value\" : \"Littman\"\n        },\n
+        \       \"credit-name\" : null,\n        \"other-names\" : null\n      },\n
+        \     \"biography\" : null,\n      \"researcher-urls\" : {\n        \"researcher-url\"
+        : [ {\n          \"url-name\" : {\n            \"value\" : \"Github\"\n          },\n
+        \         \"url\" : {\n            \"value\" : \"https://github.com/justinlittman\"\n
+        \         }\n        }, {\n          \"url-name\" : {\n            \"value\"
+        : \"Twitter\"\n          },\n          \"url\" : {\n            \"value\"
+        : \"https://twitter.com/justin_littman\"\n          }\n        }, {\n          \"url-name\"
+        : {\n            \"value\" : \"LinkedIn\"\n          },\n          \"url\"
+        : {\n            \"value\" : \"https://www.linkedin.com/pub/justin-littman/a7/aa3/11a\"\n
+        \         }\n        } ],\n        \"visibility\" : \"PUBLIC\"\n      },\n
+        \     \"contact-details\" : null,\n      \"keywords\" : {\n        \"keyword\"
+        : [ {\n          \"value\" : \"\"\n        } ],\n        \"visibility\" :
+        \"PUBLIC\"\n      },\n      \"external-identifiers\" : {\n        \"external-identifier\"
+        : [ {\n          \"orcid\" : null,\n          \"external-id-orcid\" : null,\n
+        \         \"external-id-common-name\" : {\n            \"value\" : \"Scopus
+        Author ID\"\n          },\n          \"external-id-reference\" : {\n            \"value\"
+        : \"55926744500\"\n          },\n          \"external-id-url\" : {\n            \"value\"
+        : \"http://www.scopus.com/inward/authorDetails.url?authorID=55926744500&partnerID=MN8TOARS\"\n
+        \         },\n          \"external-id-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-5982-8983\",\n              \"path\" : \"0000-0002-5982-8983\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : null,\n            \"source-date\"
+        : null\n          }\n        } ],\n        \"visibility\" : \"PUBLIC\"\n      },\n
+        \     \"delegation\" : null,\n      \"applications\" : null,\n      \"scope\"
+        : null\n    },\n    \"orcid-activities\" : {\n      \"affiliations\" : {\n
+        \       \"affiliation\" : [ {\n          \"type\" : \"EMPLOYMENT\",\n          \"department-name\"
+        : \"Scholarly Technology Group, Gelman Library\",\n          \"role-title\"
+        : \"Software Developer / Librarian\",\n          \"start-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2014\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"end-date\"
+        : null,\n          \"organization\" : {\n            \"name\" : \"George Washington
+        University\",\n            \"address\" : {\n              \"city\" : \"Washington\",\n
+        \             \"region\" : \"DC\",\n              \"country\" : \"US\"\n            },\n
+        \           \"disambiguated-organization\" : {\n              \"disambiguated-organization-identifier\"
+        : \"8367\",\n              \"disambiguation-source\" : \"RINGGOLD\"\n            }\n
+        \         },\n          \"source\" : {\n            \"source-orcid\" : {\n
+        \             \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367082233\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367082233\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424367765508\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742819\"\n        }, {\n          \"type\"
+        : \"EMPLOYMENT\",\n          \"department-name\" : \"Repository Development
+        Center, Office of Strategic Initiatives\",\n          \"role-title\" : \"Software
+        Developer\",\n          \"start-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2003\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null\n          },\n          \"end-date\" : {\n            \"year\" : {\n
+        \             \"value\" : \"2014\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"organization\"
+        : {\n            \"name\" : \"Library of Congress\",\n            \"address\"
+        : {\n              \"city\" : \"Washington\",\n              \"region\" :
+        \"DC\",\n              \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"8386\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367025562\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367025562\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424367787455\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742815\"\n        }, {\n          \"type\"
+        : \"EDUCATION\",\n          \"department-name\" : null,\n          \"role-title\"
+        : \"M.L.I.S.\",\n          \"start-date\" : null,\n          \"end-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2002\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null\n          },\n
+        \         \"organization\" : {\n            \"name\" : \"University of Denver\",\n
+        \           \"address\" : {\n              \"city\" : \"Denver\",\n              \"region\"
+        : \"CO\",\n              \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"2927\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424366945628\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424366945628\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424366945628\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742812\"\n        }, {\n          \"type\"
+        : \"EDUCATION\",\n          \"department-name\" : null,\n          \"role-title\"
+        : \"B.A.\",\n          \"start-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"1991\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null\n          },\n          \"end-date\" : {\n            \"year\" : {\n
+        \             \"value\" : \"1995\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null\n          },\n          \"organization\"
+        : {\n            \"name\" : \"Amherst College\",\n            \"address\"
+        : {\n              \"city\" : \"Amherst\",\n              \"region\" : \"MA\",\n
+        \             \"country\" : \"US\"\n            },\n            \"disambiguated-organization\"
+        : {\n              \"disambiguated-organization-identifier\" : \"1180\",\n
+        \             \"disambiguation-source\" : \"RINGGOLD\"\n            }\n          },\n
+        \         \"source\" : {\n            \"source-orcid\" : {\n              \"value\"
+        : null,\n              \"uri\" : \"http://orcid.org/0000-0003-1527-0030\",\n
+        \             \"path\" : \"0000-0003-1527-0030\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Justin Littman\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424366833252\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424366833252\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1424366833252\n          },\n          \"visibility\"
+        : \"PUBLIC\",\n          \"put-code\" : \"742807\"\n        } ]\n      },\n
+        \     \"orcid-works\" : {\n        \"orcid-work\" : [ {\n          \"put-code\"
+        : \"15473532\",\n          \"work-title\" : {\n            \"title\" : {\n
+        \             \"value\" : \"A Set of Transfer-Related Services\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : {\n            \"value\" : \"D-Lib
+        Magazine\"\n          },\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article{Littman_2009,doi = {10.1045/january2009-littman},url = {http://dx.doi.org/10.1045/january2009-littman},year
+        = 2009,month = {jan},publisher = {{CNRI} Acct},volume = {15},number = {1/2},author
+        = {Justin Littman},title = {A Set of Transfer-Related Services},journal =
+        {D-Lib Magazine}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n
+        \         \"publication-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2009\"\n            },\n            \"month\" : {\n              \"value\"
+        : \"01\"\n            },\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/january2009-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin Littman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367147211\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367147211\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073797\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473566\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A set of transfer-related
+        services\"\n            },\n            \"subtitle\" : null,\n            \"translated-title\"
+        : null\n          },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2009,title =
+        {A set of transfer-related services},journal = {D-Lib Magazine},year = {2009},volume
+        = {15},number = {1-2},author = {Littman, J.}}\"\n          },\n          \"work-type\"
+        : \"JOURNAL_ARTICLE\",\n          \"publication-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2009\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null,\n            \"media-type\" : null\n
+        \         },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-70449466165\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-70449466165&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367433520\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367433520\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074730\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473531\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"Actualized Preservation
+        Threats\"\n            },\n            \"subtitle\" : {\n              \"value\"
+        : \"Practical Lessons from Chronicling America\"\n            },\n            \"translated-title\"
+        : null\n          },\n          \"journal-title\" : {\n            \"value\"
+        : \"D-Lib Magazine\"\n          },\n          \"short-description\" : null,\n
+        \         \"work-citation\" : {\n            \"work-citation-type\" : \"BIBTEX\",\n
+        \           \"citation\" : \"@article{Littman_2007,doi = {10.1045/july2007-littman},url
+        = {http://dx.doi.org/10.1045/july2007-littman},year = 2007,month = {jul},publisher
+        = {{CNRI} Acct},volume = {13},number = {7/8},author = {Justin Littman},title
+        = {Actualized Preservation Threats},journal = {D-Lib Magazine}}\"\n          },\n
+        \         \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2007\"\n            },\n
+        \           \"month\" : {\n              \"value\" : \"07\"\n            },\n
+        \           \"day\" : null,\n            \"media-type\" : null\n          },\n
+        \         \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/july2007-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin Littman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367141773\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367141773\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073739\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473562\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"Actualized preservation
+        threats: Practical lessons from chronicling America\"\n            },\n            \"subtitle\"
+        : null,\n            \"translated-title\" : null\n          },\n          \"journal-title\"
+        : null,\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article { littman2007,title = {Actualized preservation threats: Practical
+        lessons from chronicling America},journal = {D-Lib Magazine},year = {2007},volume
+        = {13},number = {7-8},author = {Littman, J.}}\"\n          },\n          \"work-type\"
+        : \"JOURNAL_ARTICLE\",\n          \"publication-date\" : {\n            \"year\"
+        : {\n              \"value\" : \"2007\"\n            },\n            \"month\"
+        : null,\n            \"day\" : null,\n            \"media-type\" : null\n
+        \         },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/july2007-littman\"\n              }\n
+        \           }, {\n              \"work-external-identifier-type\" : \"EID\",\n
+        \             \"work-external-identifier-id\" : {\n                \"value\"
+        : \"2-s2.0-34548293277\"\n              }\n            } ],\n            \"scope\"
+        : null\n          },\n          \"url\" : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-34548293277&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367298781\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367298781\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074546\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473533\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A Technical Approach
+        and Distributed Model for Validation of Digital Objects\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : {\n            \"value\" : \"D-Lib
+        Magazine\"\n          },\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article{LIttman_2006,doi = {10.1045/may2006-littman},url = {http://dx.doi.org/10.1045/may2006-littman},year
+        = 2006,month = {may},publisher = {{CNRI} Acct},volume = {12},number = {5},author
+        = {Justin LIttman},title = {A Technical Approach and Distributed Model for
+        Validation of Digital Objects},journal = {D-Lib Magazine}}\"\n          },\n
+        \         \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2006\"\n            },\n
+        \           \"month\" : {\n              \"value\" : \"05\"\n            },\n
+        \           \"day\" : null,\n            \"media-type\" : null\n          },\n
+        \         \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"DOI\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"10.1045/may2006-littman\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : null,\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Justin LIttman\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : {\n                \"contributor-sequence\"
+        : null,\n                \"contributor-role\" : \"AUTHOR\"\n              }\n
+        \           } ]\n          },\n          \"work-source\" : null,\n          \"source\"
+        : {\n            \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-3054-1567\",\n              \"path\" : \"0000-0002-3054-1567\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"CrossRef
+        Metadata Search\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367155883\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367155883\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746073867\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473563\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A technical approach
+        and distributed model for validation of digital objects\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2006,title =
+        {A technical approach and distributed model for validation of digital objects},journal
+        = {D-Lib Magazine},year = {2006},volume = {12},number = {5},pages = {37-46},author
+        = {Littman, J.}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n
+        \         \"publication-date\" : {\n            \"year\" : {\n              \"value\"
+        : \"2006\"\n            },\n            \"month\" : null,\n            \"day\"
+        : null,\n            \"media-type\" : null\n          },\n          \"work-external-identifiers\"
+        : {\n            \"work-external-identifier\" : [ {\n              \"work-external-identifier-type\"
+        : \"DOI\",\n              \"work-external-identifier-id\" : {\n                \"value\"
+        : \"10.1045/may2006-littman\"\n              }\n            }, {\n              \"work-external-identifier-type\"
+        : \"EID\",\n              \"work-external-identifier-id\" : {\n                \"value\"
+        : \"2-s2.0-33646743434\"\n              }\n            } ],\n            \"scope\"
+        : null\n          },\n          \"url\" : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-33646743434&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367298784\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367298784\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074579\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473567\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A framework for
+        object preservation in digital repositories\"\n            },\n            \"subtitle\"
+        : null,\n            \"translated-title\" : null\n          },\n          \"journal-title\"
+        : null,\n          \"short-description\" : null,\n          \"work-citation\"
+        : {\n            \"work-citation-type\" : \"BIBTEX\",\n            \"citation\"
+        : \"@article { littman2006,title = {A framework for object preservation in
+        digital repositories},journal = {Archiving 2006 - Final Program and Proceedings},year
+        = {2006},pages = {79-83},author = {Boyko, A. and Hamidzadeh, B. and Littman,
+        J.}}\"\n          },\n          \"work-type\" : \"CONFERENCE_PAPER\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2006\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-36048985393\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-36048985393&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Boyko, A.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            }, {\n              \"contributor-orcid\"
+        : null,\n              \"credit-name\" : {\n                \"value\" : \"Hamidzadeh,
+        B.\",\n                \"visibility\" : \"PUBLIC\"\n              },\n              \"contributor-email\"
+        : null,\n              \"contributor-attributes\" : null\n            }, {\n
+        \             \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            } ]\n          },\n
+        \         \"work-source\" : null,\n          \"source\" : {\n            \"source-orcid\"
+        : {\n              \"value\" : null,\n              \"uri\" : \"http://orcid.org/0000-0002-5982-8983\",\n
+        \             \"path\" : \"0000-0002-5982-8983\",\n              \"host\"
+        : \"orcid.org\"\n            },\n            \"source-client-id\" : null,\n
+        \           \"source-name\" : {\n              \"value\" : \"Scopus to ORCID\"\n
+        \           },\n            \"source-date\" : {\n              \"value\" :
+        1424367433526\n            }\n          },\n          \"created-date\" : {\n
+        \           \"value\" : 1424367433526\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074771\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       }, {\n          \"put-code\" : \"15473568\",\n          \"work-title\"
+        : {\n            \"title\" : {\n              \"value\" : \"A circulation
+        analysis of print books and e-books in an academic research library\"\n            },\n
+        \           \"subtitle\" : null,\n            \"translated-title\" : null\n
+        \         },\n          \"journal-title\" : null,\n          \"short-description\"
+        : null,\n          \"work-citation\" : {\n            \"work-citation-type\"
+        : \"BIBTEX\",\n            \"citation\" : \"@article { littman2004,title =
+        {A circulation analysis of print books and e-books in an academic research
+        library},journal = {Library Resources and Technical Services},year = {2004},volume
+        = {48},number = {4},pages = {256-262},author = {Littman, J. and Connaway,
+        L.S.}}\"\n          },\n          \"work-type\" : \"JOURNAL_ARTICLE\",\n          \"publication-date\"
+        : {\n            \"year\" : {\n              \"value\" : \"2004\"\n            },\n
+        \           \"month\" : null,\n            \"day\" : null,\n            \"media-type\"
+        : null\n          },\n          \"work-external-identifiers\" : {\n            \"work-external-identifier\"
+        : [ {\n              \"work-external-identifier-type\" : \"EID\",\n              \"work-external-identifier-id\"
+        : {\n                \"value\" : \"2-s2.0-10144239002\"\n              }\n
+        \           } ],\n            \"scope\" : null\n          },\n          \"url\"
+        : {\n            \"value\" : \"http://www.scopus.com/inward/record.url?eid=2-s2.0-10144239002&partnerID=MN8TOARS\"\n
+        \         },\n          \"work-contributors\" : {\n            \"contributor\"
+        : [ {\n              \"contributor-orcid\" : null,\n              \"credit-name\"
+        : {\n                \"value\" : \"Littman, J.\",\n                \"visibility\"
+        : \"PUBLIC\"\n              },\n              \"contributor-email\" : null,\n
+        \             \"contributor-attributes\" : null\n            }, {\n              \"contributor-orcid\"
+        : null,\n              \"credit-name\" : {\n                \"value\" : \"Connaway,
+        L.S.\",\n                \"visibility\" : \"PUBLIC\"\n              },\n              \"contributor-email\"
+        : null,\n              \"contributor-attributes\" : null\n            } ]\n
+        \         },\n          \"work-source\" : null,\n          \"source\" : {\n
+        \           \"source-orcid\" : {\n              \"value\" : null,\n              \"uri\"
+        : \"http://orcid.org/0000-0002-5982-8983\",\n              \"path\" : \"0000-0002-5982-8983\",\n
+        \             \"host\" : \"orcid.org\"\n            },\n            \"source-client-id\"
+        : null,\n            \"source-name\" : {\n              \"value\" : \"Scopus
+        to ORCID\"\n            },\n            \"source-date\" : {\n              \"value\"
+        : 1424367433532\n            }\n          },\n          \"created-date\" :
+        {\n            \"value\" : 1424367433532\n          },\n          \"last-modified-date\"
+        : {\n            \"value\" : 1437746074810\n          },\n          \"language-code\"
+        : null,\n          \"country\" : null,\n          \"visibility\" : \"PUBLIC\"\n
+        \       } ],\n        \"scope\" : null\n      },\n      \"funding-list\" :
+        null\n    },\n    \"orcid-internal\" : null,\n    \"type\" : \"USER\",\n    \"group-type\"
+        : null,\n    \"client-type\" : null\n  },\n  \"orcid-search-results\" : null,\n
+        \ \"error-desc\" : null\n}"}
+    headers:
+      access-control-allow-origin: ['*']
+      connection: [keep-alive]
+      content-type: [application/orcid+json; qs=2;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:28 GMT']
+      server: [nginx/1.1.19]
+      set-cookie: [X-Mapping-fjhppofk=88C859A65F96A9D2101D5CDCBDC853EB; path=/]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/january2009-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433523545315},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"1\/2","DOI":"10.1045\/january2009-littman","type":"journal-article","source":"CrossRef","title":["A
+        Set of Transfer-Related Services"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"15","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2009,1,15]],"timestamp":1231977600000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2009,1]]},"URL":"http:\/\/dx.doi.org\/10.1045\/january2009-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['799']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:28 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/july2007-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433507573635},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"7\/8","DOI":"10.1045\/july2007-littman","type":"journal-article","source":"CrossRef","title":["Actualized
+        Preservation Threats"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"13","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,7,16]],"timestamp":1184544000000},"score":1.0,"subtitle":["Practical
+        Lessons from Chronicling America"],"issued":{"date-parts":[[2007,7]]},"URL":"http:\/\/dx.doi.org\/10.1045\/july2007-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['834']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:29 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/july2007-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,6,5]],"timestamp":1433507573635},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"7\/8","DOI":"10.1045\/july2007-littman","type":"journal-article","source":"CrossRef","title":["Actualized
+        Preservation Threats"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"13","author":[{"affiliation":[],"family":"Littman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,7,16]],"timestamp":1184544000000},"score":1.0,"subtitle":["Practical
+        Lessons from Chronicling America"],"issued":{"date-parts":[[2007,7]]},"URL":"http:\/\/dx.doi.org\/10.1045\/july2007-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['834']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:29 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/may2006-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,2,8]],"timestamp":1423410007877},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"5","DOI":"10.1045\/may2006-littman","type":"journal-article","source":"CrossRef","title":["A
+        Technical Approach and Distributed Model for Validation of Digital Objects"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"12","author":[{"affiliation":[],"family":"LIttman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,2,13]],"timestamp":1171324800000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2006,5]]},"URL":"http:\/\/dx.doi.org\/10.1045\/may2006-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['830']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:29 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+- request:
+    body: null
+    headers:
+      Accept: ['*/*']
+      Accept-Encoding: ['gzip, deflate']
+      Connection: [keep-alive]
+      User-Agent: [python-requests/2.6.0 CPython/2.7.8 Darwin/13.4.0]
+    method: GET
+    uri: http://api.crossref.org/works/10.1045/may2006-littman
+  response:
+    body: {string: !!python/unicode '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2015,2,8]],"timestamp":1423410007877},"reference-count":0,"publisher":"CNRI
+        Acct","issue":"5","DOI":"10.1045\/may2006-littman","type":"journal-article","source":"CrossRef","title":["A
+        Technical Approach and Distributed Model for Validation of Digital Objects"],"prefix":"http:\/\/id.crossref.org\/prefix\/10.1045","volume":"12","author":[{"affiliation":[],"family":"LIttman","given":"Justin"}],"member":"http:\/\/id.crossref.org\/member\/72","container-title":["D-Lib
+        Magazine"],"deposited":{"date-parts":[[2007,2,13]],"timestamp":1171324800000},"score":1.0,"subtitle":[],"issued":{"date-parts":[[2006,5]]},"URL":"http:\/\/dx.doi.org\/10.1045\/may2006-littman","ISSN":["1082-9873"],"subject":["Library
+        and Information Sciences"]}}'}
+    headers:
+      access-control-allow-headers: [X-Requested-With]
+      access-control-allow-origin: ['*']
+      connection: [Keep-Alive]
+      content-length: ['830']
+      content-type: [application/json;charset=UTF-8]
+      date: ['Tue, 11 Aug 2015 18:02:29 GMT']
+      keep-alive: ['timeout=5, max=100']
+      server: [http-kit]
+      vary: [Accept]
+    status: {code: 200, message: OK}
+version: 1

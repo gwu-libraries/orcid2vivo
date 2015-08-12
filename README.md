@@ -1,5 +1,5 @@
 # orcid2vivo
-Proof of concept code for retrieving data from the ORCID API and crosswalking to VIVO-ISF.
+Tool for retrieving data from the ORCID API and crosswalking to VIVO-ISF.
 
 [![Build status](https://travis-ci.org/gwu-libraries/orcid2vivo.svg)]
 
@@ -130,6 +130,66 @@ GLSS-F0G5RP:orcid2vivo justinlittman$ docker run -e "O2V_ENDPOINT=http://vivo:80
 ```
 
 The web form will now be available at http://localhost:5000/.  (Note:  If using boot2docker, use result of `boot2docker ip` instead of localhost.)
+
+## Bulk loading
+* Supports loading to VIVO instance (via SPARQL Update) for multiple people.
+* Provides database to record a list of:
+    * Orcid id for the person
+    * Last load
+    * Active flag
+    * Id for the person
+    * URI for the person
+    * Class for the person
+* Also allows specifying:
+    * VIVO namespace
+    * Whether to skip creating records for a person.
+* Invoked with command line interface.
+* Maintains store of complete RDF for a person.
+* All loads are incremental, as determined by comparing the stored RDF for a person against the generated RDF.
+
+The general workflow would be:
+
+1. Add records to the database.
+2. Periodically perform a load, possibly limiting the load by a last load cutoff or a number limit.
+3. As necessary, update the database by adding or deleting (i.e., de-activating) orcid id records.
+
+```
+(ENV)GLSS-F0G5RP:orcid2vivo justinlittman$ python orcid2vivo_loader.py -h
+usage: orcid2vivo_loader.py [-h] [--debug]
+                            {add,delete,delete-all,load,list} ...
+
+positional arguments:
+  {add,delete,delete-all,load,list}
+    add                 Adds or updates orcid id record. If inactive, marks
+                        active.
+    delete              Marks an orcid id record as inactive so that it will
+                        not be loaded.
+    delete-all          Marks all orcid id records as inactive.
+    load                Fetches orcid profiles, crosswalks to VIVO-ISF, loads
+                        to VIVO instance, and updates orcid id record. If
+                        loading multiple orcid ids, loads in least recent
+                        order.
+    list                Lists orcid_id records in the db.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --debug
+```
+
+For example:
+
+```
+(ENV)GLSS-F0G5RP:orcid2vivo justinlittman$ python orcid2vivo_loader.py add 0000-0003-1527-0030
+Adding 0000-0003-1527-0030
+Done
+(ENV)GLSS-F0G5RP:orcid2vivo justinlittman$ python orcid2vivo_loader.py list
+0000-0003-1527-0030 [active=true; last_update=None; person_uri=None; person_id=None, person_class=None]
+Done
+(ENV)GLSS-F0G5RP:orcid2vivo justinlittman$ python orcid2vivo_loader.py load http://192.168.59.103:8080/vivo/api/sparqlUpdate vivo_root@gwu.edu http://vivo.gwu.edu --password password
+Loading to http://192.168.59.103:8080/vivo/api/sparqlUpdate
+Loaded: 0000-0003-1527-0030
+Done
+```
 
 ##Tests
 

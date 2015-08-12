@@ -1,4 +1,4 @@
-import app.vivo_namespace as ns
+import vivo_namespace as ns
 import hashlib
 import re
 import collections

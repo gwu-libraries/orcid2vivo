@@ -146,6 +146,35 @@ def sparql_insert(graph, endpoint, username, password):
     query += "\nINSERT DATA { GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> {\n"
     query += "\n".join(triple_lines)
     query += "\n}}"
+    sparql_update(query, endpoint, username, password)
+
+
+def sparql_delete(graph, endpoint, username, password):
+    #Need to construct query
+    ns_lines = []
+    triple_lines = []
+    for line in graph.serialize(format="turtle").splitlines():
+        if line.startswith("@prefix"):
+            #Change from @prefix to PREFIX
+            ns_lines.append("PREFIX" + line[7:-2])
+        else:
+            triple_lines.append(line)
+    query = "\n".join(ns_lines)
+    query += "\nDELETE DATA { GRAPH <http://vitro.mannlib.cornell.edu/default/vitro-kb-2> {\n"
+    query += "\n".join(triple_lines)
+    query += "\n}}"
+    sparql_update(query, endpoint, username, password)
+
+
+def sparql_update(query, endpoint, username, password):
+    """
+    Perform a SPARQL Update query.
+
+    :param query: the query to perform
+    :param endpoint: the URL for SPARQL Update on the SPARQL server
+    :param username: username for SPARQL Update
+    :param password: password for SPARQL Update
+    """
     sparql = SPARQLWrapper(endpoint)
     sparql.addParameter("email", username)
     sparql.addParameter("password", password)
