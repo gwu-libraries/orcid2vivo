@@ -42,10 +42,22 @@ class Store():
         Returns True if there is a record for the orcid id and it is active.
         """
 
+        return self.contains(orcid_id, True)
+
+    def contains(self, orcid_id, active=None):
+        """
+        Returns True if there is a record for the orcid id.
+        """
+
         c = self._conn.cursor()
-        c.execute("""
-            select orcid_id from orcid_ids where orcid_id=? and active=1
-        """, (orcid_id,))
+        if active is None:
+            c.execute("""
+                select orcid_id from orcid_ids where orcid_id=?
+            """, (orcid_id,))
+        else:
+            c.execute("""
+                select orcid_id from orcid_ids where orcid_id=? and active=?
+            """, (orcid_id, 1 if active else 0))
         if c.fetchone():
             return True
         return False
@@ -81,19 +93,19 @@ class Store():
         """
         c = self._conn.cursor()
 
-        if orcid_id not in self:
+        if self.contains(orcid_id):
+            #Make update
+            log.info("Updating %s", orcid_id)
+            c.execute("""
+                update orcid_ids set active=1, person_uri=?, person_id=?, person_class=? where orcid_id=?
+            """, (person_uri, person_id, person_class, orcid_id))
+        else:
             #Add
             log.info("Adding %s", orcid_id)
             c.execute("""
                 insert into orcid_ids (orcid_id, active, person_uri, person_id, person_class)
                 values (?, 1, ?, ?, ?)
             """, (orcid_id, person_uri, person_id, person_class))
-        else:
-            #Make update
-            log.info("Updating %s", orcid_id)
-            c.execute("""
-                update orcid_ids set active=1, person_uri=?, person_id=?, person_class=? where orcid_id=?
-            """, (person_uri, person_id, person_class, orcid_id))
 
         self._conn.commit()
 

@@ -43,6 +43,9 @@ class TestStore(tests.TestCase):
             store.add("0000-0003-1527-0030")
             self.assertTrue("0000-0003-1527-0030" in store)
             self.assertFalse("X000-0003-1527-0030" in store)
+            self.assertTrue(store.contains("0000-0003-1527-0030"))
+            self.assertTrue(store.contains("0000-0003-1527-0030", True))
+            self.assertFalse(store.contains("0000-0003-1527-0030", False))
 
     def test_add_item(self):
         with Store(self.data_path) as store:
@@ -62,6 +65,28 @@ class TestStore(tests.TestCase):
             self.assertEqual("me", person_id)
             self.assertEqual("Librarian", person_class)
             self.assertIsNone(last_update)
+
+    def test_add_deleted_item(self):
+        with Store(self.data_path) as store:
+            #Insert
+            store.add("0000-0003-1527-0030")
+            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            self.assertTrue(active)
+            self.assertIsNone(person_uri)
+            self.assertIsNone(person_id)
+            self.assertIsNone(person_class)
+            self.assertIsNone(last_update)
+            #Delete
+            del store["0000-0003-1527-0030"]
+            #Add again
+            store.add("0000-0003-1527-0030")
+            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            self.assertTrue(active)
+            self.assertIsNone(person_uri)
+            self.assertIsNone(person_id)
+            self.assertIsNone(person_class)
+            self.assertIsNone(last_update)
+
 
     def test_del(self):
         with Store(self.data_path) as store:
