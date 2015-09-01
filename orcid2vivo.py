@@ -82,7 +82,7 @@ def fetch_orcid_profile(orcid_id):
     if r:
         return r.json()
     else:
-        raise Exception("Request to fetch ORCID profile for %s returned %s" % (id, r.status_code))
+        raise Exception("Request to fetch ORCID profile for %s returned %s" % (orcid, r.status_code))
 
 
 def set_namespace(namespace=None):
