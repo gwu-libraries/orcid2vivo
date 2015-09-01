@@ -5,12 +5,14 @@ from unittest import TestCase
 import json
 from orcid2vivo_app.works import WorksCrosswalk
 import orcid2vivo_app.vivo_namespace as ns
-from rdflib import Graph, Literal, RDFS
+from rdflib import Graph, Literal, RDFS, RDF
+from orcid2vivo_app.vivo_namespace import VIVO
 from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
 #Saving this because will be monkey patching
 orig_fetch_crossref_doi = WorksCrosswalk._fetch_crossref_doi
+
 
 class TestWorks(TestCase):
 
@@ -21,7 +23,6 @@ class TestWorks(TestCase):
         WorksCrosswalk._fetch_crossref_doi = staticmethod(orig_fetch_crossref_doi)
         self.crosswalker = WorksCrosswalk(identifier_strategy=HashIdentifierStrategy(),
                                           create_strategy=self.create_strategy)
-
 
     def test_no_actitivities(self):
         orcid_profile = json.loads("""
@@ -68,6 +69,58 @@ class TestWorks(TestCase):
         """)
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
+
+    def test_authorship(self):
+        orcid_profile = json.loads("""
+{
+    "message-version": "1.2",
+    "orcid-profile": {
+        "orcid-bio": {
+            "personal-details": {
+                "given-names": {
+                    "value": "Laurel"
+                },
+                "family-name": {
+                    "value": "Haak"
+                }
+            }
+        },
+        "orcid-activities" : {
+            "orcid-works": {
+                "orcid-work": [
+                    {
+                        "work-title": {
+                            "title": {
+                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+                            }
+                        },
+                        "work-type": "JOURNAL_ARTICLE"
+                    },
+                    {
+                        "work-title": {
+                            "title": {
+                                "value": "Persistent identifiers can improve provenance and attribution and encourage sharing of research results"
+                            }
+                        },
+                        "work-type": "JOURNAL_ARTICLE"
+                    }
+                ]
+            }
+        }
+    }
+}
+        """)
+
+        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.assertEqual(2, len(list(self.graph[: RDF["type"]: VIVO["Authorship"]])))
+        self.assertTrue(bool(self.graph.query("""
+            ask where {
+                ?doc a bibo:AcademicArticle .
+                ?doc rdfs:label "Persistent identifiers can improve provenance and attribution and encourage sharing of research results" .
+                ?auth a vivo:Authorship .
+                ?auth vivo:relates ?doc, d:test .
+            }
+        """)))
 
     def test_orcid_title_no_subtitle(self):
         orcid_profile = json.loads("""

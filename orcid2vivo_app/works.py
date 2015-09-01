@@ -187,7 +187,8 @@ class WorksCrosswalk():
                         graph.add((contributor_uri, VIVO.assigneeFor, work_uri))
                     else:
                         contributorship_uri = self.identifier_strategy.to_uri(vivo_type,
-                                                                              {"contributor_uri": contributor_uri})
+                                                                              {"contributor_uri": contributor_uri,
+                                                                               "work_uri": work_uri})
                         graph.add((contributorship_uri, RDF.type, vivo_type))
                         graph.add((contributorship_uri, VIVO.relates, work_uri))
                         graph.add((contributorship_uri, VIVO.relates, contributor_uri))
