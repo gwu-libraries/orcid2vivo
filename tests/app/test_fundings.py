@@ -1,9 +1,9 @@
 from unittest import TestCase
 from tests import FIXTURE_PATH
-from app.fundings import FundingCrosswalk
+from orcid2vivo_app.fundings import FundingCrosswalk
 import orcid2vivo
-import app.vivo_namespace as ns
-from app.vivo_uri import HashIdentifierStrategy
+import orcid2vivo_app.vivo_namespace as ns
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
 from rdflib import Graph, RDFS

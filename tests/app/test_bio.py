@@ -3,11 +3,11 @@
 
 from unittest import TestCase
 import json
-from app.bio import BioCrosswalk
-import app.vivo_namespace as ns
+from orcid2vivo_app.bio import BioCrosswalk
+import orcid2vivo_app.vivo_namespace as ns
 from rdflib import Literal, Graph, RDF, RDFS
-from app.vivo_namespace import D, VIVO, FOAF
-from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo_app.vivo_namespace import D, VIVO, FOAF
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
 

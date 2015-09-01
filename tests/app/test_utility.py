@@ -1,5 +1,5 @@
 from unittest import TestCase
-from app.utility import clean_orcid
+from orcid2vivo_app.utility import clean_orcid
 
 
 class TestUtility(TestCase):

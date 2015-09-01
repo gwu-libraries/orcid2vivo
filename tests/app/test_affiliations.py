@@ -1,9 +1,9 @@
 from unittest import TestCase
 import json
-from app.affiliations import AffiliationsCrosswalk
-import app.vivo_namespace as ns
+from orcid2vivo_app.affiliations import AffiliationsCrosswalk
+import orcid2vivo_app.vivo_namespace as ns
 from rdflib import Graph
-from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
 

@@ -1,9 +1,11 @@
+#!/usr/bin/env python
+
 from flask import Flask, render_template, request, session, Response, flash, Markup
 import argparse
 import json
 import urllib
 from orcid2vivo import default_execute
-import app.utility as utility
+import orcid2vivo_app.utility as utility
 
 app = Flask(__name__)
 def_format = None

@@ -1,6 +1,6 @@
 from unittest import TestCase
-from app.vivo_uri import HashIdentifierStrategy
-from app.vivo_namespace import VIVO, OBO
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo_app.vivo_namespace import VIVO, OBO
 
 
 class TestHashIdentifierStrategy(TestCase):

@@ -1,16 +1,18 @@
+#!/usr/bin/env python
+
 import requests
 import argparse
 import codecs
 from rdflib import Literal, Graph, URIRef
 from rdflib.namespace import Namespace
-from app.vivo_uri import HashIdentifierStrategy
-from app.vivo_namespace import VIVO, FOAF
-from app.affiliations import AffiliationsCrosswalk
-from app.bio import BioCrosswalk
-from app.fundings import FundingCrosswalk
-from app.works import WorksCrosswalk
-from app.utility import sparql_insert, clean_orcid
-import app.vivo_namespace as ns
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo_app.vivo_namespace import VIVO, FOAF
+from orcid2vivo_app.affiliations import AffiliationsCrosswalk
+from orcid2vivo_app.bio import BioCrosswalk
+from orcid2vivo_app.fundings import FundingCrosswalk
+from orcid2vivo_app.works import WorksCrosswalk
+from orcid2vivo_app.utility import sparql_insert, clean_orcid
+import orcid2vivo_app.vivo_namespace as ns
 
 
 class SimpleCreateEntitiesStrategy():

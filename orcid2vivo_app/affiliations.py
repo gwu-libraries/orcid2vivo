@@ -3,7 +3,7 @@ from rdflib import RDFS, RDF, Literal
 from vivo_namespace import FOAF
 from vivo_uri import to_hash_identifier
 from utility import add_date, add_date_interval
-import app.vivo_namespace as ns
+import orcid2vivo_app.vivo_namespace as ns
 
 
 class AffiliationsCrosswalk():

@@ -3,10 +3,10 @@
 
 from unittest import TestCase
 import json
-from app.works import WorksCrosswalk 
-import app.vivo_namespace as ns
+from orcid2vivo_app.works import WorksCrosswalk
+import orcid2vivo_app.vivo_namespace as ns
 from rdflib import Graph, Literal, RDFS
-from app.vivo_uri import HashIdentifierStrategy
+from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
 #Saving this because will be monkey patching

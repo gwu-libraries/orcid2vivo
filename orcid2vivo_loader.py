@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 import sqlite3
 import os
@@ -7,8 +9,8 @@ from datetime import datetime
 from rdflib import Graph
 from rdflib.compare import graph_diff
 from orcid2vivo import default_execute
-from app.vivo_namespace import ns_manager
-from app.utility import sparql_insert, sparql_delete
+from orcid2vivo_app.vivo_namespace import ns_manager
+from orcid2vivo_app.utility import sparql_insert, sparql_delete
 
 log = logging.getLogger(__name__)
 
