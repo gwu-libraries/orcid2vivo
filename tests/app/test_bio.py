@@ -16,8 +16,8 @@ class TestBio(TestCase):
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
-        self.create_strategy = SimpleCreateEntitiesStrategy(person_uri=self.person_uri)
-        self.crosswalker = BioCrosswalk(identifier_strategy=HashIdentifierStrategy(),
+        self.create_strategy = SimpleCreateEntitiesStrategy(HashIdentifierStrategy(), person_uri=self.person_uri)
+        self.crosswalker = BioCrosswalk(identifier_strategy=self.create_strategy,
                                         create_strategy=self.create_strategy)
 
     def test_no_external_identifiers(self):

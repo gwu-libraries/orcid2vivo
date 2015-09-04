@@ -19,9 +19,9 @@ class TestWorks(TestCase):
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
-        self.create_strategy = SimpleCreateEntitiesStrategy(person_uri=self.person_uri)
+        self.create_strategy = SimpleCreateEntitiesStrategy(HashIdentifierStrategy(), person_uri=self.person_uri)
         WorksCrosswalk._fetch_crossref_doi = staticmethod(orig_fetch_crossref_doi)
-        self.crosswalker = WorksCrosswalk(identifier_strategy=HashIdentifierStrategy(),
+        self.crosswalker = WorksCrosswalk(identifier_strategy=self.create_strategy,
                                           create_strategy=self.create_strategy)
 
     def test_no_actitivities(self):

@@ -6,7 +6,7 @@ import codecs
 from rdflib import Literal, Graph, URIRef
 from rdflib.namespace import Namespace
 from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
-from orcid2vivo_app.vivo_namespace import VIVO, FOAF
+from orcid2vivo_app.vivo_namespace import VIVO, FOAF, VCARD
 from orcid2vivo_app.affiliations import AffiliationsCrosswalk
 from orcid2vivo_app.bio import BioCrosswalk
 from orcid2vivo_app.fundings import FundingCrosswalk
@@ -22,11 +22,15 @@ class SimpleCreateEntitiesStrategy():
 
     Except for a few configurable options, entities are always created.
 
+    Also, wraps a provided identifier strategy (need to support skip person).
+
     Other implementations must implement should_create().
     """
-    def __init__(self, skip_person=False, person_uri=None):
+    def __init__(self, identifier_strategy, skip_person=False, person_uri=None):
         self.skip_person = skip_person
         self.person_uri = person_uri
+        self._identifier_strategy = identifier_strategy
+        self.person_name_vcard_uri = None
 
     def should_create(self, clazz, uri):
         """
@@ -35,13 +39,20 @@ class SimpleCreateEntitiesStrategy():
         :param uri: URI of the entity.
         :return: True if the entity should be created.
         """
-        if self.skip_person and self.person_uri == uri:
+        if self.skip_person and uri in (self.person_uri, self.person_name_vcard_uri):
             return False
         return True
 
+    def to_uri(self, clazz, attrs, general_clazz=None):
+        uri = self._identifier_strategy.to_uri(clazz, attrs, general_clazz=None)
+        #Need to remember vcard uri for this person so that can skip.
+        if clazz == VCARD.Name and attrs.get("person_uri") == self.person_uri:
+            self.person_name_vcard_uri = uri
+        return uri
+
 
 class PersonCrosswalk():
-    def __init__(self, identifier_strategy=HashIdentifierStrategy(), create_strategy=SimpleCreateEntitiesStrategy()):
+    def __init__(self, identifier_strategy, create_strategy):
         self.identifier_strategy = identifier_strategy
         self.create_strategy = create_strategy
         self.bio_crosswalker = BioCrosswalk(identifier_strategy, create_strategy)
@@ -100,9 +111,11 @@ def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, s
     this_person_uri = URIRef(person_uri) if person_uri \
         else this_identifier_strategy.to_uri(FOAF.Person, {"id": person_id or orcid_id})
 
-    this_create_strategy = SimpleCreateEntitiesStrategy(skip_person=skip_person, person_uri=this_person_uri)
+    #this_create_strategy will implement both create strategy and identifier strategy
+    this_create_strategy = SimpleCreateEntitiesStrategy(this_identifier_strategy, skip_person=skip_person,
+                                                        person_uri=this_person_uri)
 
-    crosswalker = PersonCrosswalk(create_strategy=this_create_strategy, identifier_strategy=this_identifier_strategy)
+    crosswalker = PersonCrosswalk(create_strategy=this_create_strategy, identifier_strategy=this_create_strategy)
     return crosswalker.crosswalk(orcid_id, this_person_uri, person_class=person_class)
 
 
