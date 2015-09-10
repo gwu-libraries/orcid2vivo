@@ -200,14 +200,18 @@ def load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoi
 
 def load(data_path, endpoint, username, password, limit=None, before_datetime=None, namespace=None, skip_person=False):
     orcid_ids = []
+    failed_orcid_ids = []
     with Store(data_path) as store:
         #Get the orcid ids to update
         results = store.get_least_recent(limit=limit, before_datetime=before_datetime)
         for (orcid_id, person_uri, person_id, person_class) in results:
-            load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoint, username, password,
-                        namespace, skip_person)
-            orcid_ids.append(orcid_id)
-    return orcid_ids
+            try:
+                load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoint, username, password,
+                            namespace, skip_person)
+                orcid_ids.append(orcid_id)
+            except Exception:
+                failed_orcid_ids.append(orcid_id)
+    return orcid_ids, failed_orcid_ids
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -309,9 +313,12 @@ if __name__ == "__main__":
             else:
                 main_before_datetime = datetime.strptime(args.before, DATETIME_FORMAT) if args.before else None
                 print "Loading to %s" % args.endpoint
-                main_orcid_ids = load(args.data_path, args.endpoint, args.username, main_password, limit=args.limit,
-                                      before_datetime=main_before_datetime, namespace=args.namespace,
-                                      skip_person=args.skip_person)
+                main_orcid_ids, main_failed_orcid_ids = load(args.data_path, args.endpoint, args.username,
+                                                             main_password, limit=args.limit,
+                                                             before_datetime=main_before_datetime,
+                                                             namespace=args.namespace,
+                                                             skip_person=args.skip_person)
                 print "Loaded: %s" % ", ".join(main_orcid_ids)
+                print "Failed: %s" % ", ".join(main_failed_orcid_ids)
 
     print "Done"
