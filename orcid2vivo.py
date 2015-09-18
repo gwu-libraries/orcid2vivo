@@ -75,7 +75,7 @@ class PersonCrosswalk():
             person_clazz = getattr(VIVO, person_class)
 
         #ORCID
-        graph.add((person_uri, VIVO.orcidId, Literal("http://orcid.org/%s" % orcid)))
+        graph.add((person_uri, VIVO.orcidId, URIRef("http://orcid.org/%s" % orcid)))
 
         self.bio_crosswalker.crosswalk(orcid_profile, person_uri, graph, person_class=person_clazz)
         self.works_crosswalker.crosswalk(orcid_profile, person_uri, graph)
