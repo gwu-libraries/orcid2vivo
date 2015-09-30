@@ -275,5 +275,8 @@ class TestAffiliations(TestCase):
                 ?geo rdfs:label "Stanford, California" .
                 ?awdgreproc a vivo:EducationalProcess .
                 ?awdgreproc obo:RO_0000057 ?org, d:test .
+                filter not exists {
+                    ?awdgreproc vivo:departmentOrSchool ?awdgredept .
+                }
             }
         """)))

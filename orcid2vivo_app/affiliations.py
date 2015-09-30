@@ -46,7 +46,7 @@ class AffiliationsCrosswalk():
                 graph.add((educational_process_uri, OBO.RO_0000057, organization_uri))
                 graph.add((educational_process_uri, OBO.RO_0000057, person_uri))
                 #Department
-                if "department-name" in affiliation:
+                if affiliation.get("department-name"):
                     graph.add((educational_process_uri, VIVO.departmentOrSchool,
                                Literal(affiliation["department-name"])))
 
