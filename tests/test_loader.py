@@ -167,7 +167,7 @@ class TestLoad(tests.TestCase):
                                                         "http://vivo.mydomain.edu/sparql", "vivo@mydomain.edu",
                                                         "password")
 
-        self.assertEqual(233, len(add_graph1))
+        self.assertEqual(231, len(add_graph1))
         self.assertEqual(0, len(delete_graph1))
 
         self.assertEqual(to_isomorphic(graph1), to_isomorphic(add_graph1))
@@ -186,9 +186,9 @@ class TestLoad(tests.TestCase):
                                                         self.data_path, "http://vivo.mydomain.edu/sparql",
                                                         "vivo@mydomain.edu", "password")
 
-        self.assertEqual(233, len(graph2))
-        self.assertEqual(18, len(add_graph2))
-        self.assertEqual(18, len(delete_graph2))
+        self.assertEqual(231, len(graph2))
+        self.assertEqual(17, len(add_graph2))
+        self.assertEqual(17, len(delete_graph2))
 
         mock_sparql_insert.assert_has_calls([
             call(add_graph1, "http://vivo.mydomain.edu/sparql", "vivo@mydomain.edu", "password"),
