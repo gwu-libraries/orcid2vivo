@@ -45,6 +45,12 @@
                 <input type="text" class="form-control" id="orcid_id" name="orcid_id" required placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="29" pattern="(orcid.org/)?[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]">
             </div>
         </div>
+        <div class="checkbox col-sm-offset-2">
+            <label>
+                <input type="checkbox" name="confirmed" {% if confirmed %} checked {% endif %}>Orcid Id is confirmed.
+            </label>
+        </div>
+
         <br />
         <div class="form-group">
             <div class="col-sm-offset-2">

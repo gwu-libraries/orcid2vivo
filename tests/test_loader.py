@@ -51,42 +51,49 @@ class TestStore(tests.TestCase):
         with Store(self.data_path) as store:
             #Insert
             store.add("0000-0003-1527-0030")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertTrue(active)
             self.assertIsNone(person_uri)
             self.assertIsNone(person_id)
             self.assertIsNone(person_class)
             self.assertIsNone(last_update)
+            self.assertFalse(confirmed)
             #Update
-            store.add("0000-0003-1527-0030", person_uri="http://me", person_id="me", person_class="Librarian")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            store.add("0000-0003-1527-0030", person_uri="http://me", person_id="me", person_class="Librarian",
+                      confirmed=True)
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertTrue(active)
             self.assertEqual("http://me", person_uri)
             self.assertEqual("me", person_id)
             self.assertEqual("Librarian", person_class)
             self.assertIsNone(last_update)
+            self.assertTrue(confirmed)
 
     def test_add_deleted_item(self):
         with Store(self.data_path) as store:
             #Insert
             store.add("0000-0003-1527-0030")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertTrue(active)
             self.assertIsNone(person_uri)
             self.assertIsNone(person_id)
             self.assertIsNone(person_class)
             self.assertIsNone(last_update)
+            self.assertFalse(confirmed)
             #Delete
             del store["0000-0003-1527-0030"]
             #Add again
             store.add("0000-0003-1527-0030")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertTrue(active)
             self.assertIsNone(person_uri)
             self.assertIsNone(person_id)
             self.assertIsNone(person_class)
             self.assertIsNone(last_update)
-
 
     def test_del(self):
         with Store(self.data_path) as store:
@@ -98,10 +105,12 @@ class TestStore(tests.TestCase):
     def test_touch(self):
         with Store(self.data_path) as store:
             store.add("0000-0003-1527-0030")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             time.sleep(1)
             store.touch("0000-0003-1527-0030")
-            (orcid_id, active, new_last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, new_last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertNotEqual(last_update, new_last_update)
 
     def test_get_least_recent(self):
@@ -135,7 +144,7 @@ class TestStore(tests.TestCase):
         with Store(self.data_path) as store:
             store.add("0000-0003-1527-0030")
             store.add("0000-0003-1527-0031")
-            for orcid_id, active, new_last_update, person_uri, person_id, person_class in store:
+            for orcid_id, active, new_last_update, person_uri, person_id, person_class, confirmed in store:
                 self.assertTrue(orcid_id in ("0000-0003-1527-0030", "0000-0003-1527-0031"))
             self.assertEqual(2, len(list(store)))
 
@@ -160,7 +169,8 @@ class TestLoad(tests.TestCase):
     def test_load_single(self, mock_sparql_delete, mock_sparql_insert):
         with Store(self.data_path) as store:
             store.add("0000-0003-1527-0030")
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertIsNone(last_update)
 
         graph1, add_graph1, delete_graph1 = load_single("0000-0003-1527-0030", None, None, None, self.data_path,
@@ -174,7 +184,8 @@ class TestLoad(tests.TestCase):
 
         with Store(self.data_path) as store:
             #Last update now set
-            (orcid_id, active, last_update, person_uri, person_id, person_class) = store["0000-0003-1527-0030"]
+            (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
+                store["0000-0003-1527-0030"]
             self.assertIsNotNone(last_update)
 
         #Make sure turtle file created

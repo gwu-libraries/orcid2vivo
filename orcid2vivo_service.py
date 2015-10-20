@@ -18,6 +18,7 @@ def_skip_person = False
 def_output = "serialize"
 def_output_html = True
 def_output_profile = False
+def_confirmed = False
 
 content_types = {
     "xml": "application/rdf+xml",
@@ -38,6 +39,7 @@ def crosswalk_form(rdf=None, orcid_profile=None):
                            namespace=session.get("namespace") or def_namespace,
                            person_class=session.get("person_class") or def_person_class,
                            skip_person=session.get("skip_person") or def_skip_person,
+                           confirmed=session.get("confirmed") or def_confirmed,
                            output=session.get("output") or def_output,
                            output_html=session.get("output_html") or def_output_html,
                            output_profile=session.get("output_profile") or def_output_profile,
@@ -54,6 +56,7 @@ def crosswalk():
     person_class = request.form.get("person_class")
     session["person_class"] = person_class
     session["skip_person"] = True if "skip_person" in request.form else False
+    session["confirmed"] = True if "confirmed" in request.form else False
     session["output"] = request.form.get("output")
     session["output_html"] = True if "output_html" in request.form else False
     session["output_profile"] = True if "output_profile" in request.form else False
@@ -64,7 +67,8 @@ def crosswalk():
                                       person_uri=request.form["person_uri"],
                                       person_id=request.form["person_id"],
                                       skip_person=True if "skip_person" in request.form else False,
-                                      person_class=person_class if person_class != "Person" else None)
+                                      person_class=person_class if person_class != "Person" else None,
+                                      confirmed_orcid_id=True if "confirmed" in request.form else False)
 
     if "output" in request.form and request.form["output"] == "vivo":
         utility.sparql_insert(g, endpoint, request.form["username"], request.form["password"])
@@ -101,6 +105,7 @@ if __name__ == "__main__":
                         help="Class (in VIVO Core ontology) for a person. Default is a FOAF Person.")
     parser.add_argument("--skip-person", dest="skip_person", action="store_true",
                         help="Skip adding triples declaring the person and the person's name.")
+    parser.add_argument("--confirmed", action="store_true", help="Mark the orcid id as confirmed.")
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--port", type=int, default="5000", help="The port the service should run on. Default is 5000.")
 
@@ -114,6 +119,7 @@ if __name__ == "__main__":
     def_namespace = args.namespace
     def_person_class = args.person_class
     def_skip_person = args.skip_person
+    def_confirmed = args.confirmed
 
     app.debug = args.debug
     app.secret_key = "orcid2vivo"

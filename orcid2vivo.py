@@ -60,7 +60,7 @@ class PersonCrosswalk():
         self.funding_crosswalker = FundingCrosswalk(identifier_strategy, create_strategy)
         self.works_crosswalker = WorksCrosswalk(identifier_strategy, create_strategy)
 
-    def crosswalk(self, orcid_id, person_uri, person_class=None):
+    def crosswalk(self, orcid_id, person_uri, person_class=None, confirmed_orcid_id=False):
 
         #Create an RDFLib Graph
         graph = Graph(namespace_manager=ns.ns_manager)
@@ -75,8 +75,7 @@ class PersonCrosswalk():
             person_clazz = getattr(VIVO, person_class)
 
         #ORCID
-        PersonCrosswalk._add_orcid_id(person_uri, clean_orcid_id, graph)
-        graph.add((person_uri, VIVO.orcidId, URIRef("http://orcid.org/%s" % clean_orcid_id)))
+        PersonCrosswalk._add_orcid_id(person_uri, clean_orcid_id, graph, confirmed_orcid_id)
 
         self.bio_crosswalker.crosswalk(orcid_profile, person_uri, graph, person_class=person_clazz)
         self.works_crosswalker.crosswalk(orcid_profile, person_uri, graph)
@@ -86,10 +85,12 @@ class PersonCrosswalk():
         return graph, orcid_profile, person_uri
 
     @staticmethod
-    def _add_orcid_id(person_uri, orcid_id, graph):
+    def _add_orcid_id(person_uri, orcid_id, graph, confirmed):
         orcid_id_uriref = URIRef("http://orcid.org/%s" % orcid_id)
         graph.add((person_uri, VIVO.orcidId, orcid_id_uriref))
         graph.add((orcid_id_uriref, RDF.type, OWL.Thing))
+        if confirmed:
+            graph.add((orcid_id_uriref, VIVO.confirmedOrcidId, person_uri))
 
 
 def fetch_orcid_profile(orcid_id):
@@ -110,7 +111,8 @@ def set_namespace(namespace=None):
         ns.ns_manager.bind('d', ns.D, replace=True)
 
 
-def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, skip_person=False, person_class=None):
+def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, skip_person=False, person_class=None,
+                    confirmed_orcid_id=False):
     #Set namespace
     set_namespace(namespace)
 
@@ -123,7 +125,8 @@ def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, s
                                                         person_uri=this_person_uri)
 
     crosswalker = PersonCrosswalk(create_strategy=this_create_strategy, identifier_strategy=this_create_strategy)
-    return crosswalker.crosswalk(orcid_id, this_person_uri, person_class=person_class)
+    return crosswalker.crosswalk(orcid_id, this_person_uri, person_class=person_class,
+                                 confirmed_orcid_id=confirmed_orcid_id)
 
 
 if __name__ == '__main__':
@@ -150,6 +153,7 @@ if __name__ == '__main__':
                         help="Class (in VIVO Core ontology) for a person. Default is a FOAF Person.")
     parser.add_argument("--skip-person", dest="skip_person", action="store_true",
                         help="Skip adding triples declaring the person and the person's name.")
+    parser.add_argument("--confirmed", action="store_true", help="Mark the orcid id as confirmed.")
 
     #Parse
     args = parser.parse_args()
@@ -157,7 +161,7 @@ if __name__ == '__main__':
     #Excute with default strategies
     (g, p, per_uri) = default_execute(args.orcid_id, namespace=args.namespace, person_uri=args.person_uri,
                                       person_id=args.person_id, skip_person=args.skip_person,
-                                      person_class=args.person_class)
+                                      person_class=args.person_class, confirmed_orcid_id=args.confirmed)
 
     #Write to file
     if args.file:

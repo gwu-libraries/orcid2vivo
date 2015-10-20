@@ -32,7 +32,7 @@ class Store():
 
         # Creating a new table
         c.execute("""
-            create table orcid_ids (orcid_id primary key, active, last_update, person_uri, person_id, person_class);
+            create table orcid_ids (orcid_id primary key, active, last_update, person_uri, person_id, person_class, confirmed);
         """)
 
         self._conn.commit()
@@ -64,11 +64,11 @@ class Store():
 
     def __getitem__(self, orcid_id):
         """
-        Returns orcid_id, active, last_update, person_uri, person_id, person_class for orcid id.
+        Returns orcid_id, active, last_update, person_uri, person_id, person_class, confirmed for orcid id.
         """
         c = self._conn.cursor()
         c.execute("""
-            select orcid_id, active, last_update, person_uri, person_id, person_class from orcid_ids where orcid_id=?
+            select orcid_id, active, last_update, person_uri, person_id, person_class, confirmed from orcid_ids where orcid_id=?
         """, (orcid_id,))
         row = c.fetchone()
         if not row:
@@ -87,7 +87,7 @@ class Store():
 
         self._conn.commit()
 
-    def add(self, orcid_id, person_uri=None, person_id=None, person_class=None):
+    def add(self, orcid_id, person_uri=None, person_id=None, person_class=None, confirmed=False):
         """
         Adds orcid id or updates existing orcid id and marks as active.
         """
@@ -97,26 +97,26 @@ class Store():
             #Make update
             log.info("Updating %s", orcid_id)
             c.execute("""
-                update orcid_ids set active=1, person_uri=?, person_id=?, person_class=? where orcid_id=?
-            """, (person_uri, person_id, person_class, orcid_id))
+                update orcid_ids set active=1, person_uri=?, person_id=?, person_class=?, confirmed=? where orcid_id=?
+            """, (person_uri, person_id, person_class, confirmed, orcid_id))
         else:
             #Add
             log.info("Adding %s", orcid_id)
             c.execute("""
-                insert into orcid_ids (orcid_id, active, person_uri, person_id, person_class)
-                values (?, 1, ?, ?, ?)
-            """, (orcid_id, person_uri, person_id, person_class))
+                insert into orcid_ids (orcid_id, active, person_uri, person_id, person_class, confirmed)
+                values (?, 1, ?, ?, ?, ?)
+            """, (orcid_id, person_uri, person_id, person_class, confirmed))
 
         self._conn.commit()
 
     def get_least_recent(self, limit=None, before_datetime=None):
         """
         Returns least recently updated active orcid ids as list of
-        orcid_id, person_uri, person_id, person_class.
+        orcid_id, person_uri, person_id, person_class, confirmed.
         """
         c = self._conn.cursor()
         sql = """
-            select orcid_id, person_uri, person_id, person_class from orcid_ids where active=1
+            select orcid_id, person_uri, person_id, person_class, confirmed from orcid_ids where active=1
         """
         if before_datetime:
             sql += " and (last_update < '%s' or last_update is null)" % before_datetime.strftime(DATETIME_FORMAT)
@@ -144,7 +144,7 @@ class Store():
     def __iter__(self):
         c = self._conn.cursor()
         c.execute("""
-            select orcid_id, active, last_update, person_uri, person_id, person_class from orcid_ids
+            select orcid_id, active, last_update, person_uri, person_id, person_class, confirmed from orcid_ids
         """)
 
         return iter(c.fetchall())
@@ -165,12 +165,12 @@ class Store():
 
 
 def load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoint, username, password,
-                namespace=None, skip_person=False):
+                namespace=None, skip_person=False, confirmed_orcid_id=False):
     with Store(data_path) as store:
         #Crosswalk
         (graph, profile, person_uri) = default_execute(orcid_id, namespace=namespace, person_uri=person_uri,
                                                        person_id=person_id, skip_person=skip_person,
-                                                       person_class=person_class)
+                                                       person_class=person_class, confirmed_orcid_id=confirmed_orcid_id)
 
         graph_filepath = os.path.join(data_path, "%s.ttl" % orcid_id.lower())
         previous_graph = Graph(namespace_manager=ns_manager)
@@ -204,10 +204,10 @@ def load(data_path, endpoint, username, password, limit=None, before_datetime=No
     with Store(data_path) as store:
         #Get the orcid ids to update
         results = store.get_least_recent(limit=limit, before_datetime=before_datetime)
-        for (orcid_id, person_uri, person_id, person_class) in results:
+        for (orcid_id, person_uri, person_id, person_class, confirmed) in results:
             try:
                 load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoint, username, password,
-                            namespace, skip_person)
+                            namespace, skip_person, confirmed)
                 orcid_ids.append(orcid_id)
             except Exception:
                 failed_orcid_ids.append(orcid_id)
@@ -238,6 +238,7 @@ if __name__ == "__main__":
                             choices=["FacultyMember", "FacultyMemberEmeritus", "Librarian", "LibrarianEmeritus",
                                      "NonAcademic", "NonFacultyAcademic", "ProfessorEmeritus", "Student"],
                             help="Class (in VIVO Core ontology) for a person. Default is a FOAF Person.")
+    parser.add_argument("--confirmed", action="store_true", help="Mark the orcid id as confirmed.")
 
     delete_parser = subparsers.add_parser("delete", help="Marks an orcid id record as inactive so that it will not be "
                                                          "loaded.",
@@ -279,7 +280,7 @@ if __name__ == "__main__":
         if args.command == "add":
             print "Adding %s" % args.orcid_id
             main_store.add(args.orcid_id, person_uri=args.person_uri, person_id=args.person_id,
-                           person_class=args.person_class)
+                           person_class=args.person_class, confirmed=args.confirmed)
         elif args.command == "delete":
             print "Deleting %s" % args.orcid_id
             del main_store[args.orcid_id]
@@ -288,14 +289,15 @@ if __name__ == "__main__":
             main_store.delete_all()
         elif args.command == "list":
             for main_orcid_id, main_active, main_last_update, main_person_uri, \
-                    main_person_id, main_person_class in main_store:
-                print "%s [active=%s; last_update=%s; person_uri=%s; person_id=%s, person_class=%s]" % (
+                    main_person_id, main_person_class, main_confirmed in main_store:
+                print "%s [active=%s; last_update=%s; person_uri=%s; person_id=%s, person_class=%s, confirmed=%s]" % (
                     main_orcid_id,
                     "true" if main_active else "false",
                     main_last_update,
                     main_person_uri,
                     main_person_id,
-                    main_person_class
+                    main_person_class,
+                    main_confirmed
                 )
 
     if args.command == "load":
