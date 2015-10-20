@@ -3,7 +3,7 @@
 import requests
 import argparse
 import codecs
-from rdflib import Literal, Graph, URIRef
+from rdflib import Graph, URIRef, RDF, OWL
 from rdflib.namespace import Namespace
 from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo_app.vivo_namespace import VIVO, FOAF, VCARD
@@ -66,8 +66,8 @@ class PersonCrosswalk():
         graph = Graph(namespace_manager=ns.ns_manager)
 
         #0000-0003-3441-946X
-        orcid = clean_orcid(orcid_id)
-        orcid_profile = fetch_orcid_profile(orcid)
+        clean_orcid_id = clean_orcid(orcid_id)
+        orcid_profile = fetch_orcid_profile(clean_orcid_id)
 
         #Determine the class to use for the person
         person_clazz = FOAF.Person
@@ -75,7 +75,8 @@ class PersonCrosswalk():
             person_clazz = getattr(VIVO, person_class)
 
         #ORCID
-        graph.add((person_uri, VIVO.orcidId, URIRef("http://orcid.org/%s" % orcid)))
+        PersonCrosswalk._add_orcid_id(person_uri, clean_orcid_id, graph)
+        graph.add((person_uri, VIVO.orcidId, URIRef("http://orcid.org/%s" % clean_orcid_id)))
 
         self.bio_crosswalker.crosswalk(orcid_profile, person_uri, graph, person_class=person_clazz)
         self.works_crosswalker.crosswalk(orcid_profile, person_uri, graph)
@@ -83,6 +84,12 @@ class PersonCrosswalk():
         self.funding_crosswalker.crosswalk(orcid_profile, person_uri, graph)
 
         return graph, orcid_profile, person_uri
+
+    @staticmethod
+    def _add_orcid_id(person_uri, orcid_id, graph):
+        orcid_id_uriref = URIRef("http://orcid.org/%s" % orcid_id)
+        graph.add((person_uri, VIVO.orcidId, orcid_id_uriref))
+        graph.add((orcid_id_uriref, RDF.type, OWL.Thing))
 
 
 def fetch_orcid_profile(orcid_id):
