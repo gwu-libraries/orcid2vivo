@@ -32,6 +32,14 @@ class TestFundings(TestCase):
         self.assertTrue(len(self.graph) == 0)
 
 
+    @my_vcr.use_cassette('fundings/null.yaml')
+    def test_no_funding(self):
+        profile = orcid2vivo.fetch_orcid_profile('0000-0002-7843-9422')
+        self.crosswalker.crosswalk(profile, self.person_uri, self.graph)
+        # Assert no triples in graph
+        self.assertTrue(len(self.graph) == 0)
+
+
     @my_vcr.use_cassette('fundings/with_funding.yaml')
     def test_with_funding(self):
         profile = orcid2vivo.fetch_orcid_profile('0000-0001-5109-3700')

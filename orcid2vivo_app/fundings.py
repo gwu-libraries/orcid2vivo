@@ -9,7 +9,8 @@ class FundingCrosswalk():
         self.create_strategy = create_strategy
 
     def crosswalk(self, orcid_profile, person_uri, graph):
-        if "funding-list" in orcid_profile["orcid-profile"]["orcid-activities"] \
+        if orcid_profile["orcid-profile"]["orcid-activities"] \
+                and "funding-list" in orcid_profile["orcid-profile"]["orcid-activities"] \
                 and orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"] \
                 and "funding" in orcid_profile["orcid-profile"]["orcid-activities"]["funding-list"]:
             #Funding
