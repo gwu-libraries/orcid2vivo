@@ -54,3 +54,15 @@ class TestFundings(TestCase):
         pi_roles = [guri for guri in self.graph.subjects(predicate=ns.OBO['RO_0000052'], object=self.person_uri)]
         self.assertEqual(len(pi_roles), 3)
 
+    @my_vcr.use_cassette('fundings/null_external_identifier_funding.yaml')
+    def test_with_funding(self):
+        profile = orcid2vivo.fetch_orcid_profile('0000-0003-3844-5120')
+        self.crosswalker.crosswalk(profile, self.person_uri, self.graph)
+        # Verify a grant exists.
+        grant_uri = ns.D['grant-742228eecfbdacf092bf482f84151082']
+        self.assertEqual(
+            self.graph.value(grant_uri, RDFS.label).toPython(),
+            u"The Utility of Ultra High Performance Supercritical Fluid Chromatography for the Analysis of Seized Drugs:"
+            u"  Application to Synthetic Cannabinoids and Bath Salts "
+        )
+        self.assertEqual(0, len(list(self.graph[grant_uri : ns.VIVO.sponsorAwardId : ])))

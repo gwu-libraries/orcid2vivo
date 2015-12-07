@@ -63,7 +63,7 @@ class FundingCrosswalk():
                             graph.add((organization_uri, RDFS.label, Literal(organization_name)))
 
                     #Identifiers
-                    if "funding-external-identifiers" in funding:
+                    if "funding-external-identifiers" in funding and funding.get("funding-external-identifiers"):
                         for external_identifier in funding["funding-external-identifiers"]["funding-external-identifier"]:
                             if "funding-external-identifier-value" in external_identifier:
                                 graph.add((grant_uri, VIVO.sponsorAwardId,
