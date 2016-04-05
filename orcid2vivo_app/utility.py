@@ -2,6 +2,7 @@ from rdflib import RDF, RDFS, XSD, Literal
 from vivo_namespace import VIVO
 from numbers import Number
 from SPARQLWrapper import SPARQLWrapper
+import re
 
 
 def num_to_str(num):
@@ -191,3 +192,13 @@ def clean_orcid(value):
         return value.split('/')[1]
     else:
         return value
+
+
+def is_valid_orcid(orcid):
+    """
+    Returns true if has correct syntax for an orcid.
+    """
+    # 0000-0003-1527-0030
+    if re.match("\d\d\d\d-\d\d\d\d-\d\d\d\d-\d\d\d[0-9X]$", orcid):
+        return True
+    return False
