@@ -10,6 +10,9 @@ class TestUtility(TestCase):
         # Test with orcid.org prefix.
         self.assertEqual(clean_orcid('orcid.org/' + orcid), orcid)
 
+        # Test with http://orcid.org prefix.
+        self.assertEqual(clean_orcid('http://orcid.org/' + orcid), orcid)
+
         # Test without prefix.
         self.assertEqual(clean_orcid(orcid), orcid)
 

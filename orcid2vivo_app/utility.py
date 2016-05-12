@@ -189,7 +189,7 @@ def clean_orcid(value):
     Minimal ORCID validation.  Allowing for orcid.org/
     """
     if value.find('orcid.org/') > -1:
-        return value.split('/')[1]
+        return value.split('/')[-1]
     else:
         return value
 
