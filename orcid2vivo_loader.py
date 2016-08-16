@@ -307,7 +307,7 @@ if __name__ == "__main__":
                     if args.orcid_id not in main_store:
                         raise ValueError("%s not in db. Add person to db first." % args.orcid_id)
                     main_orcid_id, main_active, main_last_update, main_person_uri, main_person_id, \
-                        main_person_class = main_store[args.orcid_id]
+                        main_person_class, main_confirmed = main_store[args.orcid_id]
                     print "Loading %s to %s" % (args.orcid_id, args.endpoint)
                     load_single(main_orcid_id, main_person_uri, main_person_id, main_person_class, args.data_path,
                                 args.endpoint, args.username, main_password,

@@ -3,7 +3,6 @@ from orcid2vivo_app.utility import clean_orcid, is_valid_orcid
 
 
 class TestUtility(TestCase):
-
     def test_clean_orcid(self):
         orcid = '0000-0003-1527-0030'
 

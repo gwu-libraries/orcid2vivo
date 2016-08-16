@@ -388,8 +388,9 @@ class WorksCrosswalk():
         external_identifiers = work.get("work-external-identifiers")
         if external_identifiers:
             for external_identifier in external_identifiers["work-external-identifier"]:
-                ids[external_identifier["work-external-identifier-type"]] = \
-                    external_identifier["work-external-identifier-id"]["value"]
+                if external_identifier["work-external-identifier-id"] is not None:
+                    ids[external_identifier["work-external-identifier-type"]] = \
+                        external_identifier["work-external-identifier-id"]["value"]
         return ids
 
     @staticmethod
