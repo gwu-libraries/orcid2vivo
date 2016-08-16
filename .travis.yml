@@ -2,8 +2,8 @@ language: python
 python:
   - "2.7"
 before_install:
-  - "pip install pip==7.1.2"
-  - "pip install setuptools>=25.2.0"
+  - "pip install pip==7.1.2 --upgrade"
+  - "pip install setuptools>=25.2.0 --upgrade"
 install: "pip install -r requirements.txt"
 script: python -m unittest discover
 notifications:
