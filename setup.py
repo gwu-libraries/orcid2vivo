@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='orcid2vivo',
-    version='0.9.0',
+    version='0.10.0',
     url='https://github.com/gwu-libraries/orcid2vivo',
     author='Justin Littman',
     author_email='justinlittman@gmail.com',
