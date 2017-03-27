@@ -1,11 +1,9 @@
 # orcid2vivo
 Tool for retrieving data from the ORCID API and crosswalking to VIVO-ISF.
 
-[![Build status](https://travis-ci.org/gwu-libraries/orcid2vivo.svg)]
+![Build status](https://travis-ci.org/gwu-libraries/orcid2vivo.svg)
 
-Try it at  http://gw-orcid2vivo.wrlc.org/orcid2vivo
-
-##Installation
+## Installation
 With python/pip installed:
 
 ```
