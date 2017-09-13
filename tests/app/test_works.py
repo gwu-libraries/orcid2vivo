@@ -10,8 +10,10 @@ from orcid2vivo_app.vivo_namespace import VIVO
 from orcid2vivo_app.vivo_uri import HashIdentifierStrategy
 from orcid2vivo import SimpleCreateEntitiesStrategy
 
-#Saving this because will be monkey patching
+# Saving this because will be monkey patching
 orig_fetch_crossref_doi = WorksCrosswalk._fetch_crossref_doi
+
+# curl -H "Accept: application/json" https://pub.orcid.org/v2.0/0000-0003-3441-946X/work/15628639 | jq '.' | pbcopy
 
 
 class TestWorks(TestCase):
@@ -24,95 +26,45 @@ class TestWorks(TestCase):
         self.crosswalker = WorksCrosswalk(identifier_strategy=self.create_strategy,
                                           create_strategy=self.create_strategy)
 
-    def test_no_actitivities(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": null
-    }
-}
-        """)
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        self.assertEqual(0, len(self.graph))
-
     def test_no_works(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": {
-            "orcid-works": null
-        }
+  "activities-summary": {
+    "works": {
+      "group": []
     }
+  }
 }
         """)
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_only_handled_work_types(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "NOT_A_JOURNAL_ARTICLE"
-                    }
-                ]
-            }
-        }
-    }
+  "type": "NOT_A_BOOK_CHAPTER"
 }
         """)
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "nobody", self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_authorship(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            }
-                        },
-                        "work-type": "JOURNAL_ARTICLE"
-                    },
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Persistent identifiers can improve provenance and attribution and encourage sharing of research results"
-                            }
-                        },
-                        "work-type": "JOURNAL_ARTICLE"
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643392",
+  "title": {
+    "title": {
+      "value": "Persistent identifiers can improve provenance and attribution and encourage sharing of research results"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        self.assertEqual(2, len(list(self.graph[: RDF["type"]: VIVO["Authorship"]])))
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
+        self.assertEqual(1, len(list(self.graph[: RDF["type"]: VIVO["Authorship"]])))
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -123,176 +75,105 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_title_no_subtitle(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE"
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
-            "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?")]))
+            "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for "
+            "physician investigators?")]))
 
     def test_orcid_title_and_subtitle(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Jennifer"
-                },
-                "family-name": {
-                    "value": "Wisdom"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title" : {
-                                "value" : "Substance use disorder among people with first-episode psychosis"
-                            },
-                            "subtitle" : {
-                                "value" : "A systematic review of course and treatment"
-                            },
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE"
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0003-3441-946X/work/15628639",
+  "title": {
+    "title": {
+      "value": "Substance use disorder among people with first-episode psychosis"
+    },
+    "subtitle": {
+      "value": "A systematic review of course and treatment"
+    },
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Wisdom", self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
-            "Substance use disorder among people with first-episode psychosis: A systematic review of course and treatment")]))
+            "Substance use disorder among people with first-episode psychosis: A systematic review of course and "
+            "treatment")]))
 
     def test_bibtex_title(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Not the title"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation" : "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Not the title"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article{Haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
-            "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?")]))
+            "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for "
+            "physician investigators?")]))
 
     def test_crossref_title(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Not the title"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@article { haak2012,title = {Not the title},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Not the title"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article{Haak2012,title = {Not the title},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
+  },
+  "type": "JOURNAL_ARTICLE",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1097/ACM.0b013e31826d726b",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      },
+      {
+        "external-id-type": "eid",
+        "external-id-value": "2-s2.0-84869886841",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
 }
+        
         """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
@@ -303,43 +184,25 @@ class TestWorks(TestCase):
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(list(self.graph[: RDFS["label"]: Literal(
-            "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?")]))
+            "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for "
+            "Physician Investigators?")]))
 
     def test_bibtex_publisher(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Heidi"
-                },
-                "family-name": {
-                    "value": "Hardt"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation": "@book{Hardt_2014,doi = {10.1093/acprof:oso/9780199337118.001.0001},url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5014-4975/work/13266925",
+  "short-description": null,
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@book{Hardt_2014,doi = {10.1093/acprof:oso/9780199337118.001.0001},url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
+  },
+  "type": "BOOK"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Hardt", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -350,46 +213,32 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_publisher(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@article { haak2012,title = {Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?},publisher = {Not the publisher},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643382",
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article{Haak2012,title = {Standards and infrastructure for innovation data exchange},journal = {Science},year = {2012},volume = {338},number = {6104},pages = {196-197},author = {Haak, L.L. and Baker, D. and Ginther, D.K. and Gordon, G.J. and Probus, M.A. and Kannankutty, N. and Weinberg, B.A.}}"
+  },
+  "type": "JOURNAL_ARTICLE",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1126/science.1221840",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      },
+      {
+        "external-id-type": "eid",
+        "external-id-value": "2-s2.0-84867318319",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
 }
+        
         """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
@@ -398,7 +247,7 @@ class TestWorks(TestCase):
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -409,86 +258,50 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_volume_and_number_and_pages(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "F."
-                },
-                "family-name": {
-                    "value": "Viladomat"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation": "@article { viladomat1997,title = {Narcissus alkaloids},journal = {Studies in Natural Products Chemistry},year = {1997},volume = {20},number = {PART F},pages = {323-405}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5003-0230/work/13540323",
+  "type": "BOOK",
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article { viladomat1997,title = {Narcissus alkaloids},journal = {Studies in Natural Products Chemistry},year = {1997},volume = {20},number = {PART F},pages = {323-405},author = {Bastida, J. and Viladomat, F. and Codina, C.}}"
+  }
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Viladomat", self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["volume"]: Literal("20")]))
         self.assertTrue(list(self.graph[: ns.BIBO["issue"]: Literal("PART F")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageStart"]: Literal("323")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageEnd"]: Literal("405")]))
 
-    def test_bibtex_volume_and_number_and_pages(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@article { haak2012,title = {Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?},publisher = {Not the publisher},journal = {Academic Medicine},year = {2012},volume = {Not 87},number = {Not 11},pages = {1536-1554},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
-}
-        """)
+    def test_crossref_volume_and_number_and_pages(self):
+        work_profile = json.loads("""
 
+{
+  "path": "/0000-0001-5109-3700/work/8289794",
+  "type": "JOURNAL_ARTICLE",
+  "title": {
+    "title": {
+      "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1097/acm.0b013e31826d726b",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
+}
+        
+        """)
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "page": "1516-1524",
@@ -496,60 +309,40 @@ class TestWorks(TestCase):
     "volume": "11"
 }
         """))
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["volume"]: Literal("11")]))
         self.assertTrue(list(self.graph[: ns.BIBO["issue"]: Literal("87")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageStart"]: Literal("1516")]))
         self.assertTrue(list(self.graph[: ns.BIBO["pageEnd"]: Literal("1524")]))
 
     def test_orcid_pubdate(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "publication-date" : {
-                            "year" : {
-                              "value" : "2013"
-                            },
-                            "month" : {
-                              "value" : "11"
-                            },
-                            "day" : {
-                              "value" : "01"
-                            },
-                            "media-type" : null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/8289794",
+  "type": "JOURNAL_ARTICLE",
+  "title": {
+    "title": {
+      "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "publication-date": {
+    "year": {
+      "value": "2013"
+    },
+    "month": {
+      "value": "11"
+    },
+    "day": {
+      "value": "01"    
+    },
+    "media-type": null
+  }
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -562,49 +355,29 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_pubdate_year_only(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "publication-date" : {
-                            "year" : {
-                              "value" : "2013"
-                            },
-                            "month" : null,
-                            "day" : null,
-                            "media-type" : null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/8289794",
+  "type": "JOURNAL_ARTICLE",
+  "title": {
+    "title": {
+      "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "publication-date": {
+    "year": {
+      "value": "2013"
+    },
+    "month": null,
+    "day": null,
+    "media-type": null
+  }
 }
-        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -617,58 +390,37 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_pubdate(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "publication-date" : {
-                            "year" : {
-                              "value" : "2013"
-                            },
-                            "month" : null,
-                            "day" : null,
-                            "media-type" : null
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/8289794",
+  "type": "JOURNAL_ARTICLE",
+  "title": {
+    "title": {
+      "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "publication-date": {
+    "year": {
+      "value": "2013"
+    },
+    "month": null,
+    "day": null,
+    "media-type": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1097/acm.0b013e31826d726b",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
 }
-        """)
+""")
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
@@ -676,7 +428,7 @@ class TestWorks(TestCase):
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -689,57 +441,36 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_pubdate_year_only(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "publication-date" : {
-                            "year" : {
-                              "value" : "2013"
-                            },
-                            "month" : null,
-                            "day" : null,
-                            "media-type" : null
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/8289794",
+          "type": "JOURNAL_ARTICLE",
+          "title": {
+            "title": {
+              "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "publication-date": {
+            "year": {
+              "value": "2013"
+            },
+            "month": null,
+            "day": null,
+            "media-type": null
+          },
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "doi",
+                "external-id-value": "10.1097/acm.0b013e31826d726b",
+                "external-id-url": null,
+                "external-id-relationship": "SELF"
+              }
+            ]
+          }
         }
-    }
-}
         """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
@@ -748,7 +479,7 @@ class TestWorks(TestCase):
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -761,44 +492,18 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_pubdate(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "M."
-                },
-                "family-name": {
-                    "value": "Chichorro"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                          "title": {
-                            "value": "Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)"
-                          },
-                          "subtitle": null
-                        },
-                        "work-citation": {
-                          "work-citation-type": "BIBTEX",
-                          "citation": "@article { chichorro2014,title = {Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)},journal = {Gondwana Research},year = {2014},volume = {25},number = {1},pages = {290-308}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5000-0736/work/11557873",
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article { chichorro2014,title = {Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)},journal = {Gondwana Research},year = {2014},volume = {25},number = {1},pages = {290-308},author = {Pereira, M.F. and Castro, A. and Chichorro, M. and Fernández, C. and Díaz-Alvarado, J. and Martí, J. and Rodríguez, C.}}"
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Chichorro", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -811,44 +516,18 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_pubdate_in_press(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "M."
-                },
-                "family-name": {
-                    "value": "Chichorro"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                          "title": {
-                            "value": "Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)"
-                          },
-                          "subtitle": null
-                        },
-                        "work-citation": {
-                          "work-citation-type": "BIBTEX",
-                          "citation": "@article { chichorro2014,title = {Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)},journal = {Gondwana Research},year = {in press},volume = {25},number = {1},pages = {290-308}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5000-0736/work/11557873",
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article { chichorro2014,title = {Chronological link between deep-seated processes in magma chambers and eruptions: Permo-Carboniferous magmatism in the core of Pangaea (Southern Pyrenees)},journal = {Gondwana Research},year = {in press},volume = {25},number = {1},pages = {290-308}}"
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Chichorro", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -859,44 +538,24 @@ class TestWorks(TestCase):
         """)))
 
     def test_book_chapter(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "N.J."
-                },
-                "family-name": {
-                    "value": "Ford"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Numerical methods for multi-term fractional boundary value problems, Differential and Difference Equations with Applications"
-                            },
-                            "subtitle": null
-                        },
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
-                        },
-                        "work-type": "BOOK_CHAPTER"
-                    }
-                ]
-            }
-        }
-    }
-}
+  "path": "/0000-0002-9446-437X/work/35153466",
+  "title": {
+    "title": {
+      "value": "Numerical Methods for Multi-term Fractional Boundary Value Problems"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
+  },
+  "type": "BOOK_CHAPTER"
+}        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Ford", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Chapter .
@@ -910,58 +569,47 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_subject(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Jennifer"
-                },
-                "family-name": {
-                    "value": "Wisdom"
-                }
-            }
+  "path": "/0000-0003-3441-946X/work/15628641",
+  "title": {
+    "title": {
+      "value": "Substance abuse treatment programs' data management capacity: An exploratory study"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1007/s11414-010-9221-z",
+        "external-id-url": {
+          "value": ""
         },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title" : {
-                            "title" : {
-                                "value" : "Substance abuse treatment programs' data management capacity: An exploratory study"
-                            },
-                            "subtitle" : null,
-                            "translated-title" : null
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1007/s11414-010-9221-z"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+        "external-id-relationship": "SELF"
+      },
+      {
+        "external-id-type": "eid",
+        "external-id-value": "2-s2.0-79955719929",
+        "external-id-url": {
+          "value": ""
+        },
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
 }
+        
         """)
-
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
 {
     "subject":["Health(social science)","Public Health, Environmental and Occupational Health","Health Policy"]
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Wisdom", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -978,58 +626,45 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_authors(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio" : {
-            "personal-details" : {
-                "given-names" : {
-                    "value" : "Laurel"
-                },
-                "family-name" : {
-                    "value" : "Haak"
+        work_profile = json.loads("""
+                {
+                  "path": "/0000-0001-5109-3700/work/8289794",
+                  "type": "JOURNAL_ARTICLE",
+                  "title": {
+                    "title": {
+                      "value": "Are Race, Ethnicity, and Medical School Affiliation Associated With NIH R01 Type 1 Award Probability for Physician Investigators?"
+                    },
+                    "subtitle": null,
+                    "translated-title": null
+                  },
+                  "publication-date": {
+                    "year": {
+                      "value": "2013"
+                    },
+                    "month": null,
+                    "day": null,
+                    "media-type": null
+                  },
+                  "external-ids": {
+                    "external-id": [
+                      {
+                        "external-id-type": "doi",
+                        "external-id-value": "10.1097/acm.0b013e31826d726b",
+                        "external-id-url": null,
+                        "external-id-relationship": "SELF"
+                      }
+                    ]
+                  }
                 }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title" : {
-                            "title" : {
-                                "value" : "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle" : null,
-                            "translated-title" : null
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
-}
-        """)
+                """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
-{
-    "author":[{"affiliation":[],"family":"Ginther","given":"Donna K."},{"affiliation":[],"family":"Haak","given":"Laurel L."},{"affiliation":[],"family":"Schaffer","given":"Walter T."},{"affiliation":[],"family":"Kington","given":"Raynard"}]
-}
-        """))
+        {
+            "author":[{"affiliation":[],"family":"Ginther","given":"Donna K."},{"affiliation":[],"family":"Haak","given":"Laurel L."},{"affiliation":[],"family":"Schaffer","given":"Walter T."},{"affiliation":[],"family":"Kington","given":"Raynard"}]
+        }
+                """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1051,80 +686,58 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_authors_reversed(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE",
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Ginther, D.K."
         },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "Ginther, D.K.",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "Haak, L.L.",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "Schaffer, W.T.",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "Kington, R.",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-    }
-}        """)
+        "contributor-email": null,
+        "contributor-attributes": null
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Haak, L.L."
+        },
+        "contributor-email": null,
+        "contributor-attributes": null
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Schaffer, W.T."
+        },
+        "contributor-email": null,
+        "contributor-attributes": null
+      },
+      {
+        "contributor-orcid": null,
+        "credit-name": {
+          "value": "Kington, R."
+        },
+        "contributor-email": null,
+        "contributor-attributes": null
+      }
+    ]
+  }
+}
+        
+        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1146,41 +759,25 @@ class TestWorks(TestCase):
         """)))
 
     def test_no_orcid_authors(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-contributors": null
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "type": "JOURNAL_ARTICLE",
+          "contributors": {
+            "contributor": []
+          }
         }
-    }
-}        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+                """)
+
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1190,53 +787,32 @@ class TestWorks(TestCase):
         """)))
 
     def test_null_credit_name(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": null,
-                                    "contributor-email": null,
-                                    "contributor-attributes": {
-                                        "contributor-sequence": null,
-                                        "contributor-role": "SUPPORT_STAFF"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "type": "JOURNAL_ARTICLE",
+          "contributors": {
+            "contributor": [
+              {
+                "contributor-orcid": null,
+                "credit-name": null,
+                "contributor-email": null,
+                "contributor-attributes": null
+              }
+            ]
+          }
         }
-    }
-}        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+                """)
+
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1246,80 +822,57 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_authors_not_reversed(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "type": "JOURNAL_ARTICLE",
+          "contributors": {
+            "contributor": [
+              {
+                "contributor-orcid": null,
+                "credit-name": {
+                  "value": "D.K. Ginther"
                 },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "D.K. Ginther",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "Haak, L.L.",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": " W.T. Schaffer",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                },
-                                {
-                                    "contributor-orcid": null,
-                                    "credit-name": {
-                                        "value": "R. Kington",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-email": null,
-                                    "contributor-attributes": null
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+                "contributor-email": null,
+                "contributor-attributes": null
+              },
+              {
+                "contributor-orcid": null,
+                "credit-name": {
+                  "value": "L.L. Haak"
+                },
+                "contributor-email": null,
+                "contributor-attributes": null
+              },
+              {
+                "contributor-orcid": null,
+                "credit-name": {
+                  "value": "W.T. Schaffer"
+                },
+                "contributor-email": null,
+                "contributor-attributes": null
+              },
+              {
+                "contributor-orcid": null,
+                "credit-name": {
+                  "value": "R. Kington"
+                },
+                "contributor-email": null,
+                "contributor-attributes": null
+              }
+            ]
+          }
         }
-    }
-}        """)
+                """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1341,44 +894,25 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_authors_reversed(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation" : "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
-}        """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article{Haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
+  },
+  "type": "JOURNAL_ARTICLE"
+}
+        
+        """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1400,44 +934,25 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_authors_not_reversed(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation" : "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {D.K. Ginther and L.L. Haak and W.T. Schaffer and R. Kington}}"
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "citation": {
+            "citation-type": "BIBTEX",
+            "citation-value": "@article{Haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {D.K. Ginther and L.L. Haak and W.T. Schaffer and R. Kington}}"
+          },
+          "type": "JOURNAL_ARTICLE"
         }
-    }
-}        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+                """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1459,44 +974,26 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_editor(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "N.J."
-                },
-                "family-name": {
-                    "value": "Ford"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Numerical methods for multi-term fractional boundary value problems, Differential and Difference Equations with Applications"
-                            },
-                            "subtitle": null
-                        },
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
-                        },
-                        "work-type": "BOOK_CHAPTER"
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0002-9446-437X/work/35153466",
+  "title": {
+    "title": {
+      "value": "Numerical Methods for Multi-term Fractional Boundary Value Problems"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
+  },
+  "type": "BOOK_CHAPTER"
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Ford", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Chapter .
@@ -1516,50 +1013,34 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_editor(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Maria Clotilde"
-                },
-                "family-name": {
-                    "value": "Almeida"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Media and Sports/Media e Desporto"
-                            },
-                            "subtitle": null
-                        },
-                        "work-type": "BOOK",
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-attributes": {
-                                        "contributor-sequence": "FIRST",
-                                        "contributor-role": "EDITOR"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+  "path": "/0000-0001-5014-7658/work/11269935",
+  "title": {
+    "title": {
+      "value": "Media and Sports/Media e Desporto"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "BOOK",
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": null,
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": "FIRST",
+          "contributor-role": "EDITOR"
         }
-    }
+      }
+    ]
+  }
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Almeida", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -1569,49 +1050,35 @@ class TestWorks(TestCase):
         """)))
 
     def test_external_identifier(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-title": {
-                            "title": {
-                                "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "JOURNAL_ARTICLE",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "doi",
+        "external-id-value": "10.1097/ACM.0b013e31826d726b",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      },
+      {
+        "external-id-type": "eid",
+        "external-id-value": "2-s2.0-84869886841",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  }
 }
+        
         """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
@@ -1619,7 +1086,7 @@ class TestWorks(TestCase):
 }
         """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -1633,142 +1100,96 @@ class TestWorks(TestCase):
         """)))
 
     def test_isbn13(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Lara"
-                },
-                "family-name": {
-                    "value": "Milesi"
-                }
-            }
+  "path": "/0000-0001-9002-015X/work/13926662",
+  "title": {
+    "title": {
+      "value": "Estrategias de frontera desde la interculturalidad."
+    },
+    "subtitle": {
+      "value": "El caso del we tripantü mapuche hoy"
+    },
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "Actas del XIII Congreso de Antropología de la Federación de Asociaciones de Antropología del Estado Español: Periferias, Fronteras y Diálogos. "
+  },
+  "type": "CONFERENCE_PAPER",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "isbn",
+        "external-id-value": "978-84-697-0505-6",
+        "external-id-url": {
+          "value": ""
         },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Estrategias de frontera desde la interculturalidad."
-                            },
-                            "subtitle": {
-                                "value": "El caso del we tripantü mapuche hoy"
-                            }
-                        },
-                        "journal-title": {
-                            "value": "Actas del XIII Congreso de Antropología de la Federación de Asociaciones de Antropología del Estado Español: Periferias, Fronteras y Diálogos. "
-                        },
-                        "work-type": "CONFERENCE_PAPER",
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "ISBN",
-                                    "work-external-identifier-id": {
-                                        "value": "978-84-697-0505-6"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
-    }
+        "external-id-relationship": "PART_OF"
+      }
+    ]
+  }
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Milesi", self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn13"]: Literal("978-84-697-0505-6")]))
 
     def test_isbn10(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Lara"
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-9002-015X/work/13926662",
+          "title": {
+            "title": {
+              "value": "Estrategias de frontera desde la interculturalidad."
+            },
+            "subtitle": {
+              "value": "El caso del we tripantü mapuche hoy"
+            },
+            "translated-title": null
+          },
+          "journal-title": {
+            "value": "Actas del XIII Congreso de Antropología de la Federación de Asociaciones de Antropología del Estado Español: Periferias, Fronteras y Diálogos. "
+          },
+          "type": "CONFERENCE_PAPER",
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "isbn",
+                "external-id-value": "978-84-697-05",
+                "external-id-url": {
+                  "value": ""
                 },
-                "family-name": {
-                    "value": "Milesi"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Estrategias de frontera desde la interculturalidad."
-                            },
-                            "subtitle": {
-                                "value": "El caso del we tripantü mapuche hoy"
-                            }
-                        },
-                        "journal-title": {
-                            "value": "Actas del XIII Congreso de Antropología de la Federación de Asociaciones de Antropología del Estado Español: Periferias, Fronteras y Diálogos. "
-                        },
-                        "work-type": "CONFERENCE_PAPER",
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "ISBN",
-                                    "work-external-identifier-id": {
-                                        "value": "978-84-697-05"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+                "external-id-relationship": "PART_OF"
+              }
+            ]
+          }
         }
-    }
-}
-        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+                """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Milesi", self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn10"]: Literal("978-84-697-05")]))
 
     def test_bibtex_doi(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Heidi"
-                },
-                "family-name": {
-                    "value": "Hardt"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation": "@book{Hardt_2014,doi = {10.1093/acprof:oso/9780199337118.001.0001},url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5014-4975/work/13266925",
+  "title": {
+    "title": {
+      "value": "Time to React"
+    },
+    "subtitle": {
+      "value": "The Efficiency of International Organizations in Crisis Response"
+    },
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@book{Hardt_2014,doi = {10.1093/acprof:oso/9780199337118.001.0001},url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
+  },
+  "type": "BOOK"
 }
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Hardt", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Book .
@@ -1782,84 +1203,47 @@ class TestWorks(TestCase):
         """)))
 
     def test_bibtex_isbn(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "N.J."
-                },
-                "family-name": {
-                    "value": "Ford"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Numerical methods for multi-term fractional boundary value problems, Differential and Difference Equations with Applications"
-                            },
-                            "subtitle": null
-                        },
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
-                        },
-                        "work-type": "BOOK_CHAPTER"
-                    }
-                ]
-            }
-        }
-    }
+  "title": {
+    "title": {
+      "value": "Numerical methods for multi-term fractional boundary value problems, Differential and Difference Equations with Applications"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@incollection{\\nyear={2013},\\nisbn={978-1-4614-7332-9},\\nbooktitle={Differential and Difference Equations with Applications},\\nvolume={47},\\nseries={Springer Proceedings in Mathematics & Statistics},\\neditor={Pinelas, Sandra and Chipot, Michel and Dosla, Zuzana},\\ndoi={10.1007/978-1-4614-7333-6_48},\\ntitle={Numerical Methods for Multi-term Fractional Boundary Value Problems},\\nurl={http://dx.doi.org/10.1007/978-1-4614-7333-6_48},\\npublisher={Springer New York},\\npages={535-542},\\nlanguage={English}\\n}\\n"
+  },
+  "type": "BOOK_CHAPTER"
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Ford", self.graph)
         self.assertTrue(list(self.graph[: ns.BIBO["isbn13"]: Literal("978-1-4614-7332-9")]))
 
     def test_orcid_url(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Edwin"
-                },
-                "family-name": {
-                    "value": "Seroussi"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Popular Music and Israeli National Culture"
-                            },
-                            "subtitle": null
-                        },
-                        "work-type": "BOOK",
-                        "url": {
-                            "value": "http://www.ucpress.edu/book.php?isbn=9780520236547"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5006-1520/work/13637092",
+  "title": {
+    "title": {
+      "value": "Popular Music and Israeli National Culture"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "BOOK",
+  "url": {
+    "value": "http://www.ucpress.edu/book.php?isbn=9780520236547"
+  }
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Seroussi", self.graph)
         self.assertTrue(list(self.graph[: ns.VCARD["url"]: ]))
         self.assertTrue(bool(self.graph.query("""
             ask where {
@@ -1872,82 +1256,51 @@ class TestWorks(TestCase):
             }
         """)))
 
-
-
     def test_ignore_orcid_url(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Heidi"
-                },
-                "family-name": {
-                    "value": "Hardt"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-title": {
-                            "title": {
-                                "value": "Time to React"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "url": {
-                            "value": "http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5014-4975/work/13266925",
+  "title": {
+    "title": {
+      "value": "Time to React"
+    },
+    "subtitle": {
+      "value": "The Efficiency of International Organizations in Crisis Response"
+    },
+    "translated-title": null
+  },
+  "type": "BOOK",
+  "url": {
+    "value": "http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001"
+  }
 }
-       """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        
+        """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Hardt", self.graph)
         self.assertFalse(list(self.graph[: ns.VCARD["url"]: ]))
 
     def test_bibtex_url(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Heidi"
-                },
-                "family-name": {
-                    "value": "Hardt"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation": "@book{Hardt_2014,url = {http://www.ucpress.edu/book.php?isbn=9780520236547},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5014-4975/work/13266925",
+  "title": {
+    "title": {
+      "value": "Time to React"
+    },
+    "subtitle": {
+      "value": "The Efficiency of International Organizations in Crisis Response"
+    },
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@book{Hardt_2014,doi = {10.1093/acprof:oso/9780199337118.001.0001},url = {http://www.ucpress.edu/book.php?isbn=9780520236547},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
+  },
+  "type": "BOOK"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Hardt", self.graph)
         self.assertTrue(list(self.graph[: ns.VCARD["url"]:]))
         self.assertTrue(bool(self.graph.query("""
             ask where {
@@ -1961,80 +1314,50 @@ class TestWorks(TestCase):
         """)))
 
     def test_ignore_bibtex_url(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Heidi"
-                },
-                "family-name": {
-                    "value": "Hardt"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-type": "BOOK",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation": "@book{Hardt_2014,url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5014-4975/work/13266925",
+          "title": {
+            "title": {
+              "value": "Time to React"
+            },
+            "subtitle": {
+              "value": "The Efficiency of International Organizations in Crisis Response"
+            },
+            "translated-title": null
+          },
+          "citation": {
+            "citation-type": "BIBTEX",
+            "citation-value": "@book{Hardt_2014,url = {http://dx.doi.org/10.1093/acprof:oso/9780199337118.001.0001},year = 2014,month = {Feb},publisher = {Oxford University Press},author = {Heidi Hardt},title = {Time to React}}"
+          },
+          "type": "BOOK"
         }
-    }
-}
-        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+                """)
+
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Hardt", self.graph)
         self.assertFalse(list(self.graph[: ns.VCARD["url"]:]))
 
     def test_bibtex_journal(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Not the title"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation" : "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},issn = {1040-2446},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "citation": {
+            "citation-type": "BIBTEX",
+            "citation-value": "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Academic Medicine},issn = {1040-2446},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
+          },
+          "type": "JOURNAL_ARTICLE"
         }
-    }
-}
-        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2046,63 +1369,45 @@ class TestWorks(TestCase):
         """)))
 
     def test_crossref_journal(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Not the title"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE",
-                        "work-citation" : {
-                            "work-citation-type" : "BIBTEX",
-                            "citation" : "@article { haak2012,title = {Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?},journal = {Not Academic Medicine},issn = {Not 1040-2446},year = {2012},volume = {87},number = {11},pages = {1516-1524},author = {Ginther, D.K. and Haak, L.L. and Schaffer, W.T. and Kington, R.}}"
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "DOI",
-                                    "work-external-identifier-id": {
-                                        "value": "10.1097/ACM.0b013e31826d726b"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        }
-                    }
-                ]
-            }
+        work_profile = json.loads("""
+        {
+          "path": "/0000-0001-5109-3700/work/15643384",
+          "title": {
+            "title": {
+              "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+            },
+            "subtitle": null,
+            "translated-title": null
+          },
+          "type": "JOURNAL_ARTICLE",
+          "external-ids": {
+            "external-id": [
+              {
+                "external-id-type": "doi",
+                "external-id-value": "10.1097/ACM.0b013e31826d726b",
+                "external-id-url": null,
+                "external-id-relationship": "SELF"
+              },
+              {
+                "external-id-type": "eid",
+                "external-id-value": "2-s2.0-84869886841",
+                "external-id-url": null,
+                "external-id-relationship": "SELF"
+              }
+            ]
+          }
         }
-    }
-}
-        """)
+
+                """)
 
         WorksCrosswalk._fetch_crossref_doi = staticmethod(lambda doi: json.loads("""
-{
-    "container-title": ["Academic Medicine", "Acad. Med."],
-    "ISSN": ["1040-2446", "1938-808X"]
-}
-        """))
+        {
+            "container-title": ["Academic Medicine", "Acad. Med."],
+            "ISSN": ["1040-2446", "1938-808X"]
+        }
+                """))
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2115,44 +1420,25 @@ class TestWorks(TestCase):
         """)))
 
     def test_orcid_journal(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                }
-            }
-        },
-        "orcid-activities" : {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Not the title"
-                            },
-                            "subtitle": null,
-                            "translated-title": null
-                        },
-                        "work-type": "JOURNAL_ARTICLE",
-                        "journal-title": {
-                            "value": "Academic Medicine"
-                        }
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5109-3700/work/15643384",
+  "title": {
+    "title": {
+      "value": "Are race, ethnicity, and medical school affiliation associated with NIH R01 type 1 award probability for physician investigators?"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "Academic Medicine"
+  },
+  "type": "JOURNAL_ARTICLE"
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Haak", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:AcademicArticle .
@@ -2163,85 +1449,71 @@ class TestWorks(TestCase):
         """)))
 
     def test_journal_issue(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Andrew"
-                },
-                "family-name": {
-                    "value": "Carlin"
-                }
-            }
+  "path": "/0000-0001-5138-9384/work/10341578",
+  "title": {
+    "title": {
+      "value": "Egon Bittner"
+    },
+    "subtitle": {
+      "value": "Phenomenology in Action"
+    },
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "Ethnographic Studies"
+  },
+  "short-description": "Special Memorial Issue",
+  "type": "JOURNAL_ISSUE",
+  "publication-date": {
+    "year": {
+      "value": "2013"
+    },
+    "month": {
+      "value": "07"
+    },
+    "day": {
+      "value": "01"
+    },
+    "media-type": null
+  },
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "issn",
+        "external-id-value": "1366-4964",
+        "external-id-url": null,
+        "external-id-relationship": "SELF"
+      }
+    ]
+  },
+  "url": {
+    "value": "http://www.zhbluzern.ch/index.php?id=2583"
+  },
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": {
+          "uri": null,
+          "path": null,
+          "host": null
         },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Egon Bittner"
-                            },
-                            "subtitle": {
-                                "value": "Phenomenology in Action"
-                            }
-                        },
-                        "journal-title": {
-                            "value": "Ethnographic Studies"
-                        },
-                        "short-description": "Special Memorial Issue",
-                        "work-type": "JOURNAL_ISSUE",
-                        "publication-date": {
-                            "year": {
-                                "value": "2013"
-                            },
-                            "month": {
-                                "value": "07"
-                            },
-                            "day": {
-                                "value": "01"
-                            }
-                        },
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "ISSN",
-                                    "work-external-identifier-id": {
-                                        "value": "1366-4964"
-                                    }
-                                }
-                            ],
-                            "scope": null
-                        },
-                        "url": {
-                            "value": "http://www.zhbluzern.ch/index.php?id=2583"
-                        },
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "credit-name": {
-                                        "value": "Andrew Carlin",
-                                        "visibility": "PUBLIC"
-                                    },
-                                    "contributor-attributes": {
-                                        "contributor-sequence": "FIRST",
-                                        "contributor-role": "EDITOR"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+        "credit-name": {
+          "value": "Andrew Carlin"
+        },
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": "FIRST",
+          "contributor-role": "EDITOR"
         }
-    }
+      }
+    ]
+  }
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Carlin", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Issue .
@@ -2258,45 +1530,27 @@ class TestWorks(TestCase):
             }
         """)))
 
-    def test_journal_issue(self):
-        orcid_profile = json.loads("""
+    def test_magazine(self):
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Victor"
-                },
-                "family-name": {
-                    "value": "Peinado"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "put-code": "13302713",
-                        "work-title": {
-                            "title": {
-                                "value": "Software as a Communication Platform"
-                            },
-                            "subtitle": null
-                        },
-                        "journal-title": {
-                            "value": "Kunststoffe international 2009/11"
-                        },
-                        "work-type": "MAGAZINE_ARTICLE"
-                    }
-                ]
-            }
-        }
-    }
+  "path": "/0000-0001-5019-3929/work/13302713",
+  "title": {
+    "title": {
+      "value": "Software as a Communication Platform"
+    },
+    "subtitle": {
+      "value": ""
+    },
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "Kunststoffe international 2009/11"
+  },
+  "type": "MAGAZINE_ARTICLE"
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Peinado", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Article .
@@ -2307,47 +1561,29 @@ class TestWorks(TestCase):
         """)))
 
     def test_translation_with_bibtex(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "andrea"
-                },
-                "family-name": {
-                    "value": "sciandra"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Ambiguità nelle risposte al Position Generator"
-                            },
-                            "subtitle": null
-                        },
-                        "journal-title": {
-                            "value": "SOCIOLOGIA E POLITICHE SOCIALI"
-                        },
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@article{sciandra2012, author= {SCIANDRA A.}, doi= {10.3280/SP2012-002006}, issn= {1591-2027}, journal= {SOCIOLOGIA E POLITICHE SOCIALI}, pages= {113--141}, title= {Ambiguita nelle risposte al Position Generator}, url= {http://dx.medra.org/10.3280/SP2012-002006}, volume= {15}, year= {2012}}"
-                        },
-                        "work-type": "TRANSLATION"
-                    }
-                ]
-            }
-        }
-    }
-}
-        """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+  "path": "/0000-0001-5621-5463/work/14402996",
+  "title": {
+    "title": {
+      "value": "Ambiguità nelle risposte al Position Generator"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "SOCIOLOGIA E POLITICHE SOCIALI"
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article{sciandra2012, author= {SCIANDRA A.}, doi= {10.3280/SP2012-002006}, issn= {1591-2027}, journal= {SOCIOLOGIA E POLITICHE SOCIALI}, pages= {113--141}, title= {Ambiguita nelle risposte al Position Generator}, url= {http://dx.medra.org/10.3280/SP2012-002006}, volume= {15}, year= {2012}}"
+  },
+  "type": "TRANSLATION"
+}
+        
+        """)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Sciandra", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Article .
@@ -2361,54 +1597,40 @@ class TestWorks(TestCase):
         """)))
 
     def test_translation(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Manuel"
-                },
-                "family-name": {
-                    "value": "Alexandre Júnior"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Aristóteles, Retórica, Obras Completas de Aristóteles"
-                            },
-                            "subtitle": {
-                                "value": "com a colaboração de Paulo Farmhouse Alberto e Abel Nascimento Pena."
-                            }
-                        },
-                        "journal-title": {
-                            "value": "São Paulo, WMF Martins Fontes, 2012."
-                        },
-                        "work-type": "TRANSLATION",
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-attributes": {
-                                        "contributor-role": "CHAIR_OR_TRANSLATOR"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+  "path": "/0000-0001-5785-6342/work/11161159",
+  "title": {
+    "title": {
+      "value": "Aristóteles, Retórica, Obras Completas de Aristóteles"
+    },
+    "subtitle": {
+      "value": "com a colaboração de Paulo Farmhouse Alberto e Abel Nascimento Pena."
+    },
+    "translated-title": null
+  },
+  "journal-title": {
+    "value": "São Paulo, WMF Martins Fontes, 2012."
+  },
+  "type": "TRANSLATION",
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": null,
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "CHAIR_OR_TRANSLATOR"
         }
-    }
+      }
+    ]
+  }
 }
+        
         """)
 
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Manuel", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Document .
@@ -2422,44 +1644,24 @@ class TestWorks(TestCase):
         """)))
 
     def test_conference_paper(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Alexander"
-                },
-                "family-name": {
-                    "value": "Šatka"
-                }
-            }
-        },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "Noise in the InAlN/GaN HEMT transistors"
-                            },
-                            "subtitle": null
-                        },
-                        "work-citation": {
-                            "work-citation-type": "BIBTEX",
-                            "citation": "@article { atka2010,title = {Noise in the InAlN/GaN HEMT transistors},journal = {Conference Proceedings - The 8th International Conference on Advanced Semiconductor Devices and Microsystems, ASDAM 2010},year = {2010},pages = {53-56},author = {Rendek, K. and Šatka, A. and Kováč, J. and Donoval, D.}}"
-                        },
-                        "work-type": "CONFERENCE_PAPER"
-                    }
-                ]
-            }
-        }
-    }
-}
-        """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+  "path": "/0000-0001-5004-4536/work/14890522",
+  "title": {
+    "title": {
+      "value": "Noise in the InAlN/GaN HEMT transistors"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "citation": {
+    "citation-type": "BIBTEX",
+    "citation-value": "@article { atka2010,title = {Noise in the InAlN/GaN HEMT transistors},journal = {Conference Proceedings - The 8th International Conference on Advanced Semiconductor Devices and Microsystems, ASDAM 2010},year = {2010},pages = {53-56},author = {Rendek, K. and Šatka, A. and Kováč, J. and Donoval, D.}}"
+  },
+  "type": "CONFERENCE_PAPER"
+}        
+""")
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Sitka", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a vivo:ConferencePaper .
@@ -2471,62 +1673,49 @@ class TestWorks(TestCase):
         """)))
 
     def test_patent(self):
-        orcid_profile = json.loads("""
+        work_profile = json.loads("""
 {
-    "message-version": "1.1",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Carlos C."
-                },
-                "family-name": {
-                    "value": "Romão"
-                }
-            }
+  "path": "/0000-0001-5061-3743/work/11259988",
+  "title": {
+    "title": {
+      "value": "TREATMENT OF INFECTIONS BY CARBON MONOXIDE"
+    },
+    "subtitle": null,
+    "translated-title": null
+  },
+  "type": "PATENT",
+  "external-ids": {
+    "external-id": [
+      {
+        "external-id-type": "other-id",
+        "external-id-value": "US2010196516 (A1)",
+        "external-id-url": {
+          "value": ""
         },
-        "orcid-activities": {
-            "orcid-works": {
-                "orcid-work": [
-                    {
-                        "work-title": {
-                            "title": {
-                                "value": "TREATMENT OF INFECTIONS BY CARBON MONOXIDE"
-                            },
-                            "subtitle": null
-                        },
-                        "work-type": "PATENT",
-                        "work-external-identifiers": {
-                            "work-external-identifier": [
-                                {
-                                    "work-external-identifier-type": "OTHER_ID",
-                                    "work-external-identifier-id": {
-                                        "value": "US2010196516 (A1)"
-                                    }
-                                }
-                            ]
-                        },
-                        "url": {
-                            "value": "http://worldwide.espacenet.com/publicationDetails/biblio?II=17&ND=3&adjacent=true&locale=en_EP&FT=D&date=20100805&CC=US&NR=2010196516A1&KC=A1"
-                        },
-                        "work-contributors": {
-                            "contributor": [
-                                {
-                                    "contributor-attributes": {
-                                        "contributor-role": "CO_INVENTOR"
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+        "external-id-relationship": "SELF"
+      }
+    ]
+  },
+  "url": {
+    "value": "http://worldwide.espacenet.com/publicationDetails/biblio?II=5&ND=3&adjacent=true&locale=en_EP&FT=D&date=20100805&CC=US&NR=2010196516A1&KC=A1"
+  },
+  "contributors": {
+    "contributor": [
+      {
+        "contributor-orcid": null,
+        "credit-name": null,
+        "contributor-email": null,
+        "contributor-attributes": {
+          "contributor-sequence": null,
+          "contributor-role": "CO_INVENTOR"
         }
-    }
+      }
+    ]
+  }
 }
+        
         """)
-
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
+        self.crosswalker.crosswalk_work(work_profile, self.person_uri, "Romão", self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?doc a bibo:Patent .

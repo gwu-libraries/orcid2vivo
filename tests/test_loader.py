@@ -27,19 +27,19 @@ class TestStore(tests.TestCase):
         self.assertFalse(os.path.exists(self.db_filepath))
         with Store(self.data_path) as store:
             self.assertEqual(self.db_filepath, store.db_filepath)
-            #Created
+            # Created
             self.assertTrue(os.path.exists(self.db_filepath))
-            #Add
+            # Add
             store.add("0000-0003-1527-0030")
 
-        #Still exists after close
+        # Still exists after close
         self.assertTrue(os.path.exists(self.db_filepath))
         with Store(self.data_path) as store:
             self.assertTrue("0000-0003-1527-0030" in store)
 
     def test_contains(self):
         with Store(self.data_path) as store:
-            #Add
+            # Add
             store.add("0000-0003-1527-0030")
             self.assertTrue("0000-0003-1527-0030" in store)
             self.assertFalse("X000-0003-1527-0030" in store)
@@ -49,7 +49,7 @@ class TestStore(tests.TestCase):
 
     def test_add_item(self):
         with Store(self.data_path) as store:
-            #Insert
+            # Insert
             store.add("0000-0003-1527-0030")
             (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
                 store["0000-0003-1527-0030"]
@@ -59,7 +59,7 @@ class TestStore(tests.TestCase):
             self.assertIsNone(person_class)
             self.assertIsNone(last_update)
             self.assertFalse(confirmed)
-            #Update
+            # Update
             store.add("0000-0003-1527-0030", person_uri="http://me", person_id="me", person_class="Librarian",
                       confirmed=True)
             (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
@@ -73,7 +73,7 @@ class TestStore(tests.TestCase):
 
     def test_add_deleted_item(self):
         with Store(self.data_path) as store:
-            #Insert
+            # Insert
             store.add("0000-0003-1527-0030")
             (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
                 store["0000-0003-1527-0030"]
@@ -83,9 +83,9 @@ class TestStore(tests.TestCase):
             self.assertIsNone(person_class)
             self.assertIsNone(last_update)
             self.assertFalse(confirmed)
-            #Delete
+            # Delete
             del store["0000-0003-1527-0030"]
-            #Add again
+            # Add again
             store.add("0000-0003-1527-0030")
             (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
                 store["0000-0003-1527-0030"]
@@ -118,9 +118,9 @@ class TestStore(tests.TestCase):
             store.add("0000-0003-1527-0030")
             store.add("0000-0003-1527-0031")
             store.add("0000-0003-1527-0032")
-            #Deactivate one to make sure not returned.
+            # Deactivate one to make sure not returned.
             del store["0000-0003-1527-0032"]
-            #Touch first
+            # Touch first
             time.sleep(1)
             t = datetime.datetime.utcnow()
             time.sleep(1)
@@ -130,12 +130,12 @@ class TestStore(tests.TestCase):
             self.assertEqual("0000-0003-1527-0031", results[0][0])
             self.assertEqual("0000-0003-1527-0030", results[1][0])
 
-            #With limit
+            # With limit
             results = list(store.get_least_recent(limit=1))
             self.assertEqual(1, len(results))
             self.assertEqual("0000-0003-1527-0031", results[0][0])
 
-            #Before
+            # Before
             results = list(store.get_least_recent(before_datetime=t))
             self.assertEqual(1, len(results))
             self.assertEqual("0000-0003-1527-0031", results[0][0])
@@ -177,27 +177,31 @@ class TestLoad(tests.TestCase):
                                                         "http://vivo.mydomain.edu/sparql", "vivo@mydomain.edu",
                                                         "password")
 
-        self.assertEqual(232, len(add_graph1))
+        self.assertEqual(319, len(add_graph1))
         self.assertEqual(0, len(delete_graph1))
 
         self.assertEqual(to_isomorphic(graph1), to_isomorphic(add_graph1))
 
         with Store(self.data_path) as store:
-            #Last update now set
+            # Last update now set
             (orcid_id, active, last_update, person_uri, person_id, person_class, confirmed) = \
                 store["0000-0003-1527-0030"]
             self.assertIsNotNone(last_update)
 
-        #Make sure turtle file created
+        # Make sure turtle file created
         self.assertTrue(os.path.exists(os.path.join(self.data_path, "0000-0003-1527-0030.ttl")))
 
-        #Now change a fact and run again. Changed fact is provided by vcr recording.
-        #Changed year of Amherst degree.
+        # Now change a fact and run again. Changed fact is provided by vcr recording.
+        # Changed year of Amherst degree.
+        # Had to rig the Accept-Encoding to create the vcr recording with:
+        # r = requests.get('https://pub.orcid.org/v2.0/%s' % orcid,
+        #                  headers={"Accept": "application/json", "Accept-Encoding": "identity"})
+
         graph2, add_graph2, delete_graph2 = load_single("0000-0003-1527-0030", None, None, None,
                                                         self.data_path, "http://vivo.mydomain.edu/sparql",
                                                         "vivo@mydomain.edu", "password")
 
-        self.assertEqual(232, len(graph2))
+        self.assertEqual(319, len(graph2))
         self.assertEqual(17, len(add_graph2))
         self.assertEqual(17, len(delete_graph2))
 

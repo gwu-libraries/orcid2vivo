@@ -12,7 +12,6 @@ from orcid2vivo import SimpleCreateEntitiesStrategy
 
 
 class TestBio(TestCase):
-
     def setUp(self):
         self.graph = Graph(namespace_manager=ns.ns_manager)
         self.person_uri = ns.D["test"]
@@ -23,162 +22,268 @@ class TestBio(TestCase):
     def test_no_external_identifiers(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "external-identifiers": null
-        }
-    }
+  "person": {
+    "external-identifiers": {
+      "last-modified-date": null,
+      "external-identifier": [],
+      "path": "/0000-0003-4507-4735/external-identifiers"
+    },
+    "path": "/0000-0003-4507-4735/person"
+  }
 }
-        """)
+""")
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_external_identifiers(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "external-identifiers": {
-                "external-identifier": [
-                    {
-                        "orcid": null,
-                        "external-id-orcid": null,
-                        "external-id-common-name": {
-                            "value": "ISNI"
-                        },
-                        "external-id-reference": {
-                            "value": "0000000138352317"
-                        },
-                        "external-id-url": {
-                            "value": "http://isni.org/isni/0000000138352317"
-                        },
-                        "external-id-source": null,
-                        "source": {
-                            "source-orcid": {
-                                "value": null,
-                                "uri": "http://orcid.org/0000-0003-0412-1857",
-                                "path": "0000-0003-0412-1857",
-                                "host": "orcid.org"
-                            },
-                            "source-client-id": null,
-                            "source-name": null,
-                            "source-date": null
-                        }
-                    },
-                    {
-                        "orcid": null,
-                        "external-id-orcid": null,
-                        "external-id-common-name": {
-                            "value": "ResearcherID"
-                        },
-                        "external-id-reference": {
-                            "value": "C-4986-2008"
-                        },
-                        "external-id-url": {
-                            "value": "http://www.researcherid.com/rid/C-4986-2008"
-                        },
-                        "external-id-source": null,
-                        "source": {
-                            "source-orcid": {
-                                "value": null,
-                                "uri": "http://orcid.org/0000-0001-7707-4137",
-                                "path": "0000-0001-7707-4137",
-                                "host": "orcid.org"
-                            },
-                            "source-client-id": null,
-                            "source-name": null,
-                            "source-date": null
-                        }
-                    },
-                    {
-                        "orcid": null,
-                        "external-id-orcid": null,
-                        "external-id-common-name": {
-                            "value": "Scopus Author ID"
-                        },
-                        "external-id-reference": {
-                            "value": "6602258586"
-                        },
-                        "external-id-url": {
-                            "value": "http://www.scopus.com/inward/authorDetails.url?authorID=6602258586&partnerID=MN8TOARS"
-                        },
-                        "external-id-source": null,
-                        "source": {
-                            "source-orcid": {
-                                "value": null,
-                                "uri": "http://orcid.org/0000-0002-5982-8983",
-                                "path": "0000-0002-5982-8983",
-                                "host": "orcid.org"
-                            },
-                            "source-client-id": null,
-                            "source-name": null,
-                            "source-date": null
-                        }
-                    }
-                ],
-                "visibility": "PUBLIC"
+  "person": {
+    "external-identifiers": {
+      "last-modified-date": {
+        "value": 1390435480189
+      },
+      "external-identifier": [
+        {
+          "created-date": {
+            "value": 1379686803951
+          },
+          "last-modified-date": {
+            "value": 1379686803951
+          },
+          "source": {
+            "source-orcid": null,
+            "source-client-id": {
+              "uri": "http://orcid.org/client/0000-0002-5982-8983",
+              "path": "0000-0002-5982-8983",
+              "host": "orcid.org"
+            },
+            "source-name": {
+              "value": "Scopus to ORCID"
             }
+          },
+          "external-id-type": "Scopus Author ID",
+          "external-id-value": "6602258586",
+          "external-id-url": {
+            "value": "http://www.scopus.com/inward/authorDetails.url?authorID=6602258586&partnerID=MN8TOARS"
+          },
+          "external-id-relationship": "SELF",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/external-identifiers/142173",
+          "put-code": 142173,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1379686803951
+          },
+          "last-modified-date": {
+            "value": 1379686803951
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-7707-4137",
+              "path": "0000-0001-7707-4137",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Clarivate Analytics"
+            }
+          },
+          "external-id-type": "ResearcherID",
+          "external-id-value": "C-4986-2008",
+          "external-id-url": {
+            "value": "http://www.researcherid.com/rid/C-4986-2008"
+          },
+          "external-id-relationship": "SELF",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/external-identifiers/38181",
+          "put-code": 38181,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1390435480189
+          },
+          "last-modified-date": {
+            "value": 1390435480189
+          },
+          "source": {
+            "source-orcid": null,
+            "source-client-id": {
+              "uri": "http://orcid.org/client/0000-0003-0412-1857",
+              "path": "0000-0003-0412-1857",
+              "host": "orcid.org"
+            },
+            "source-name": {
+              "value": "ISNI2ORCID search and link"
+            }
+          },
+          "external-id-type": "ISNI",
+          "external-id-value": "0000000138352317",
+          "external-id-url": {
+            "value": "http://isni.org/isni/0000000138352317"
+          },
+          "external-id-relationship": "SELF",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/external-identifiers/187639",
+          "put-code": 187639,
+          "display-index": 0
         }
-    }
+      ],
+      "path": "/0000-0001-5109-3700/external-identifiers"
+    },
+    "path": "/0000-0001-5109-3700/person"
+  }
 }
-        """)
+""")
         self.create_strategy.skip_person = True
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(2, len(self.graph))
-        #ScopusID is added.
-        self.assertTrue(self.graph[D["test"]: VIVO["scopusId"] : Literal("6602258586")])
-        #ResearcherId is added.
-        self.assertTrue(self.graph[D["test"]: VIVO["researcherId"] : Literal("C-4986-2008")])
+        # ScopusID is added.
+        self.assertTrue(self.graph[D["test"]: VIVO["scopusId"]: Literal("6602258586")])
+        # ResearcherId is added.
+        self.assertTrue(self.graph[D["test"]: VIVO["researcherId"]: Literal("C-4986-2008")])
 
     def test_name(self):
         orcid_profile = json.loads(u"""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "personal-details": {
-                "given-names": {
-                    "value": "Laurel"
-                },
-                "family-name": {
-                    "value": "Haak"
-                },
-                "credit-name": {
-                    "value": "Laurel L Haak",
-                    "visibility": "PUBLIC"
-                },
-                "other-names": {
-                    "other-name": [
-                        {
-                            "value": " L. L. Haak"
-                        },
-                        {
-                            "value": "L Haak"
-                        },
-                        {
-                            "value": "Laure Haak"
-                        },
-                        {
-                            "value": "Laurela L Hāka"
-                        }
-                    ],
-                    "visibility": "PUBLIC"
-                }
+  "person": {
+    "name": {
+      "created-date": {
+        "value": 1460753221409
+      },
+      "last-modified-date": {
+        "value": 1460753221409
+      },
+      "given-names": {
+        "value": "Laurel"
+      },
+      "family-name": {
+        "value": "Haak"
+      },
+      "credit-name": {
+        "value": "Laurel L Haak"
+      },
+      "source": null,
+      "visibility": "PUBLIC",
+      "path": "0000-0001-5109-3700"
+    },
+    "other-names": {
+      "last-modified-date": {
+        "value": 1461191605426
+      },
+      "other-name": [
+        {
+          "created-date": {
+            "value": 1461191605416
+          },
+          "last-modified-date": {
+            "value": 1461191605416
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
             },
-            "external-identifiers": null
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
+            }
+          },
+          "content": " L. L. Haak",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/other-names/721941",
+          "put-code": 721941,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1461191605425
+          },
+          "last-modified-date": {
+            "value": 1461191605425
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
+            }
+          },
+          "content": "L Haak",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/other-names/721942",
+          "put-code": 721942,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1461191605426
+          },
+          "last-modified-date": {
+            "value": 1461191605426
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
+            }
+          },
+          "content": "Laure Haak",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/other-names/721943",
+          "put-code": 721943,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1461191605426
+          },
+          "last-modified-date": {
+            "value": 1461191605426
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
+            }
+          },
+          "content": "Laurela L Hāka",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/other-names/721944",
+          "put-code": 721944,
+          "display-index": 0
         }
+      ],
+      "path": "/0000-0001-5109-3700/other-names"
     }
+  }
 }
         """)
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        #Laurel is a person
+        # Laurel is a person
         self.assertTrue(self.graph[D["test"]: RDF.type: FOAF.Person])
-        #with a label
+        # with a label
         self.assertTrue(self.graph[D["test"]: RDFS.label: Literal("Laurel Haak")])
 
-        #vcard test
+        # vcard test
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?vcn a vcard:Name .
@@ -192,82 +297,130 @@ class TestBio(TestCase):
     def test_biography(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "biography": {
-                "value": "Laurel L. Haak, PhD, is the Executive Director of ORCID.",
-                "visibility": "PUBLIC"
-            }
-        }
+  "person": {
+    "biography": {
+      "created-date": {
+        "value": 1460753221411
+      },
+      "last-modified-date": {
+        "value": 1487932762756
+      },
+      "content": "Laurel L. Haak, PhD, is the Executive Director of ORCID, an international and interdisciplinary non-profit organization dedicated to providing the technical infrastructure to generate and maintain unique and persistent identifiers for researchers and scholars.",
+      "visibility": "PUBLIC",
+      "path": "/0000-0001-5109-3700/biography"
     }
+  }
 }
         """)
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
-        #Has a biography
-        self.assertTrue(self.graph[D["test"]: VIVO["overview"]:
-            Literal("Laurel L. Haak, PhD, is the Executive Director of ORCID.")])
+        # Has a biography
+        self.assertTrue(self.graph[D["test"]: VIVO["overview"]: Literal("Laurel L. Haak, PhD, is the Executive "
+                                                                        "Director of ORCID, an international and "
+                                                                        "interdisciplinary non-profit organization "
+                                                                        "dedicated to providing the technical "
+                                                                        "infrastructure to generate and maintain "
+                                                                        "unique and persistent identifiers for "
+                                                                        "researchers and scholars.")])
 
     def test_no_biography(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "biography": null
-        }
+  "person": {
+    "biography": {
+      "created-date": {
+        "value": 1460766291133
+      },
+      "last-modified-date": {
+        "value": 1460766291133
+      },
+      "content": null,
+      "visibility": "PUBLIC",
+      "path": "/0000-0003-4507-4735/biography"
     }
+  }
 }
-        """)
+""")
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
-        #Has a biography
+        # Has a biography
         self.assertEqual(0, len(self.graph))
 
     def test_websites(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "researcher-urls": {
-                "researcher-url": [
-                    {
-                        "url-name": {
-                            "value": "LinkedIn"
-                        },
-                        "url": {
-                            "value": "http://www.linkedin.com/pub/laurel-haak/3/1b/4a3/"
-                        }
-                    },
-                    {
-                        "url-name": null,
-                        "url": {
-                            "value": "https://www.researchgate.net/profile/Laurel_Haak"
-                        }
-                    }
-                ],
-                "visibility": "PUBLIC"
+ "person": {
+    "researcher-urls": {
+      "last-modified-date": {
+        "value": 1463003428816
+      },
+      "researcher-url": [
+        {
+          "created-date": {
+            "value": 1461191605427
+          },
+          "last-modified-date": {
+            "value": 1463003428816
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
             },
-            "contact-details": {
-                "email": [],
-                "address": {
-                    "country": {
-                        "value": "US",
-                        "visibility": "PUBLIC"
-                    }
-                }
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
             }
+          },
+          "url-name": "LinkedIn",
+          "url": {
+            "value": "http://www.linkedin.com/pub/laurel-haak/3/1b/4a3/"
+          },
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/researcher-urls/714700",
+          "put-code": 714700,
+          "display-index": 0
+        },
+        {
+          "created-date": {
+            "value": 1461191605427
+          },
+          "last-modified-date": {
+            "value": 1463003428816
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
+            }
+          },
+          "url-name": null,
+          "url": {
+            "value": "https://www.researchgate.net/profile/Laurel_Haak"
+          },
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/researcher-urls/714701",
+          "put-code": 714701,
+          "display-index": 0
         }
+      ],
+      "path": "/0000-0001-5109-3700/researcher-urls"
     }
+  }
 }
-        """)
+""")
+        # Set ResearchGate url-name to null.
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        #LinkedIn
+        # LinkedIn
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?vcw a vcard:URL .
@@ -278,7 +431,7 @@ class TestBio(TestCase):
             }
         """)))
 
-        #ResearchGate
+        # ResearchGate
         self.assertTrue(bool(self.graph.query("""
             ask where {
                 ?vcw a vcard:URL .
@@ -294,67 +447,81 @@ class TestBio(TestCase):
     def test_no_websites(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "researcher-urls": {
-                "researcher-url": [],
-                "visibility": "PUBLIC"
-            }
-        }
+  "person": {
+    "researcher-urls": {
+      "last-modified-date": null,
+      "researcher-url": [],
+      "path": "/0000-0003-4507-4735/researcher-urls"
     }
+  }
 }
         """)
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
-        #Has a biography
+        # Has a biography
         self.assertEqual(0, len(self.graph))
 
     def test_no_keywords(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "keywords": null
-        }
+  "person": {
+    "keywords": {
+      "last-modified-date": null,
+      "keyword": [],
+      "path": "/0000-0003-4507-4735/keywords"
     }
+  }
 }
         """)
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
 
-        #Has a biography
+        # Has a biography
         self.assertEqual(0, len(self.graph))
 
     def test_keywords(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "keywords": {
-                "keyword": [
-                    {
-                        "value": "persistent identifiers"
-                    },
-                    {
-                        "value": "research policy"
-                    },
-                    {
-                        "value": "science workforce"
-                    }
-                ],
-                "visibility": "PUBLIC"
+  "person": {
+    "keywords": {
+      "last-modified-date": {
+        "value": 1464800983143
+      },
+      "keyword": [
+        {
+          "created-date": {
+            "value": 1461191605415
+          },
+          "last-modified-date": {
+            "value": 1464800983143
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
             }
+          },
+          "content": "persistent identifiers, research policy, science workforce, program evaluation, neuroscience, calcium imaging, oligodendrocytes, circadian rhythms",
+          "visibility": "PUBLIC",
+          "path": "/0000-0001-5109-3700/keywords/419740",
+          "put-code": 419740,
+          "display-index": 0
         }
+      ],
+      "path": "/0000-0001-5109-3700/keywords"
     }
+  }
 }
         """)
 
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        self.assertEqual(3, len(self.graph))
+        self.assertEqual(8, len(self.graph))
 
         self.assertTrue(bool(self.graph.query("""
             ask where {

@@ -45,7 +45,7 @@ class SimpleCreateEntitiesStrategy():
 
     def to_uri(self, clazz, attrs, general_clazz=None):
         uri = self._identifier_strategy.to_uri(clazz, attrs, general_clazz=None)
-        #Need to remember vcard uri for this person so that can skip.
+        # Need to remember vcard uri for this person so that can skip.
         if clazz == VCARD.Name and attrs.get("person_uri") == self.person_uri:
             self.person_name_vcard_uri = uri
         return uri
@@ -62,19 +62,19 @@ class PersonCrosswalk():
 
     def crosswalk(self, orcid_id, person_uri, person_class=None, confirmed_orcid_id=False):
 
-        #Create an RDFLib Graph
+        # Create an RDFLib Graph
         graph = Graph(namespace_manager=ns.ns_manager)
 
-        #0000-0003-3441-946X
+        # 0000-0003-3441-946X
         clean_orcid_id = clean_orcid(orcid_id)
         orcid_profile = fetch_orcid_profile(clean_orcid_id)
 
-        #Determine the class to use for the person
+        # Determine the class to use for the person
         person_clazz = FOAF.Person
         if person_class:
             person_clazz = getattr(VIVO, person_class)
 
-        #ORCID
+        # ORCID
         PersonCrosswalk._add_orcid_id(person_uri, clean_orcid_id, graph, confirmed_orcid_id)
 
         self.bio_crosswalker.crosswalk(orcid_profile, person_uri, graph, person_class=person_clazz)
@@ -95,9 +95,8 @@ class PersonCrosswalk():
 
 def fetch_orcid_profile(orcid_id):
     orcid = clean_orcid(orcid_id)
-    #curl -H "Accept: application/orcid+json" 'http://pub.orcid.org/v1.2/0000-0003-3441-946X/orcid-profile' -L -i
-    r = requests.get('http://pub.orcid.org/v1.2/%s/orcid-profile' % orcid,
-                     headers={"Accept": "application/orcid+json"})
+    r = requests.get('https://pub.orcid.org/v2.0/%s' % orcid,
+                     headers={"Accept": "application/json"})
     if r:
         return r.json()
     else:
@@ -105,7 +104,7 @@ def fetch_orcid_profile(orcid_id):
 
 
 def set_namespace(namespace=None):
-    #Set default VIVO namespace
+    # Set default VIVO namespace
     if namespace:
         ns.D = Namespace(namespace)
         ns.ns_manager.bind('d', ns.D, replace=True)
@@ -113,14 +112,14 @@ def set_namespace(namespace=None):
 
 def default_execute(orcid_id, namespace=None, person_uri=None, person_id=None, skip_person=False, person_class=None,
                     confirmed_orcid_id=False):
-    #Set namespace
+    # Set namespace
     set_namespace(namespace)
 
     this_identifier_strategy = HashIdentifierStrategy()
     this_person_uri = URIRef(person_uri) if person_uri \
         else this_identifier_strategy.to_uri(FOAF.Person, {"id": person_id or orcid_id})
 
-    #this_create_strategy will implement both create strategy and identifier strategy
+    # this_create_strategy will implement both create strategy and identifier strategy
     this_create_strategy = SimpleCreateEntitiesStrategy(this_identifier_strategy, skip_person=skip_person,
                                                         person_uri=this_person_uri)
 
@@ -155,25 +154,25 @@ if __name__ == '__main__':
                         help="Skip adding triples declaring the person and the person's name.")
     parser.add_argument("--confirmed", action="store_true", help="Mark the orcid id as confirmed.")
 
-    #Parse
+    # Parse
     args = parser.parse_args()
 
-    #Excute with default strategies
+    # Excute with default strategies
     (g, p, per_uri) = default_execute(args.orcid_id, namespace=args.namespace, person_uri=args.person_uri,
                                       person_id=args.person_id, skip_person=args.skip_person,
                                       person_class=args.person_class, confirmed_orcid_id=args.confirmed)
 
-    #Write to file
+    # Write to file
     if args.file:
         with codecs.open(args.file, "w") as out:
             g.serialize(format=args.format, destination=out)
 
-    #Post to SPARQL Update
+    # Post to SPARQL Update
     if args.endpoint:
         if not args.username or not args.password:
             raise Exception("If an endpoint is specified, --username and --password must be provided.")
         sparql_insert(g, args.endpoint, args.username, args.password)
 
-    #If not writing to file to posting to SPARQL Update then serialize to stdout
+    # If not writing to file to posting to SPARQL Update then serialize to stdout
     if not args.file and not args.endpoint:
         print g.serialize(format=args.format)

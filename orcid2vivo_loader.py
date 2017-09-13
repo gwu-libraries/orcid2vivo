@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-class Store():
+class Store:
     def __init__(self, data_path):
         self.db_filepath = os.path.join(data_path, "orcid2vivo.db")
         log.debug("Db filepath is %s", self.db_filepath)
@@ -32,7 +32,8 @@ class Store():
 
         # Creating a new table
         c.execute("""
-            create table orcid_ids (orcid_id primary key, active, last_update, person_uri, person_id, person_class, confirmed);
+            create table orcid_ids (orcid_id primary key, active, last_update, person_uri, person_id, person_class, 
+            confirmed);
         """)
 
         self._conn.commit()
@@ -68,7 +69,8 @@ class Store():
         """
         c = self._conn.cursor()
         c.execute("""
-            select orcid_id, active, last_update, person_uri, person_id, person_class, confirmed from orcid_ids where orcid_id=?
+            select orcid_id, active, last_update, person_uri, person_id, person_class, confirmed from orcid_ids where 
+            orcid_id=?
         """, (orcid_id,))
         row = c.fetchone()
         if not row:
@@ -156,7 +158,7 @@ class Store():
         """)
         self._conn.commit()
 
-    #Methods to make this a Context Manager. This is necessary to make sure the connection is closed properly.
+    # Methods to make this a Context Manager. This is necessary to make sure the connection is closed properly.
     def __enter__(self):
         return self
 
@@ -167,32 +169,32 @@ class Store():
 def load_single(orcid_id, person_uri, person_id, person_class, data_path, endpoint, username, password,
                 namespace=None, skip_person=False, confirmed_orcid_id=False):
     with Store(data_path) as store:
-        #Crosswalk
+        # Crosswalk
         (graph, profile, person_uri) = default_execute(orcid_id, namespace=namespace, person_uri=person_uri,
                                                        person_id=person_id, skip_person=skip_person,
                                                        person_class=person_class, confirmed_orcid_id=confirmed_orcid_id)
 
         graph_filepath = os.path.join(data_path, "%s.ttl" % orcid_id.lower())
         previous_graph = Graph(namespace_manager=ns_manager)
-        #Load last graph
+        # Load last graph
         if os.path.exists(graph_filepath):
             log.debug("Loading previous graph %s", graph_filepath)
             previous_graph.parse(graph_filepath, format="turtle")
 
-        #Diff against last graph
+        # Diff against last graph
         (both_graph, delete_graph, add_graph) = graph_diff(previous_graph, graph)
 
-        #SPARQL Update
+        # SPARQL Update
         log.info("Adding %s, deleting %s triples for %s", len(add_graph), len(delete_graph), orcid_id)
         sparql_delete(delete_graph, endpoint, username, password)
         sparql_insert(add_graph, endpoint, username, password)
 
-        #Save new last graph
+        # Save new last graph
         log.debug("Saving new graph %s", graph_filepath)
         with codecs.open(graph_filepath, "w") as out:
             graph.serialize(format="turtle", destination=out)
 
-        #Touch
+        # Touch
         store.touch(orcid_id)
 
         return graph, add_graph, delete_graph
@@ -202,7 +204,7 @@ def load(data_path, endpoint, username, password, limit=None, before_datetime=No
     orcid_ids = []
     failed_orcid_ids = []
     with Store(data_path) as store:
-        #Get the orcid ids to update
+        # Get the orcid ids to update
         results = store.get_least_recent(limit=limit, before_datetime=before_datetime)
         for (orcid_id, person_uri, person_id, person_class, confirmed) in results:
             try:
@@ -267,7 +269,7 @@ if __name__ == "__main__":
     list_parser = subparsers.add_parser("list", help="Lists orcid_id records in the db.",
                                         parents=[data_path_parent_parser])
 
-    #Parse
+    # Parse
     args = parser.parse_args()
 
     if args.debug:

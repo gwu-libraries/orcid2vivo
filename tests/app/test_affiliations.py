@@ -14,29 +14,13 @@ class TestAffiliations(TestCase):
         self.person_uri = ns.D["test"]
         self.create_strategy = SimpleCreateEntitiesStrategy(HashIdentifierStrategy(), person_uri=self.person_uri)
         self.crosswalker = AffiliationsCrosswalk(identifier_strategy=self.create_strategy,
-                                        create_strategy=self.create_strategy)
-
-    def test_no_activities(self):
-        orcid_profile = json.loads("""
-{
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": null
-    }
-}
-        """)
-        self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
-        self.assertEqual(0, len(self.graph))
+                                                 create_strategy=self.create_strategy)
 
     def test_no_affiliations(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": {
-          "affiliations": null
-        }
-    }
+  "activities-summary": {
+  }
 }
         """)
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
@@ -45,145 +29,79 @@ class TestAffiliations(TestCase):
     def test_no_education(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-bio": {
-            "orcid-activities": {
-                "affiliations": {
-                    "affiliation": [
-                        {
-                            "type": "EMPLOYMENT",
-                            "department-name": "Gelman Library",
-                            "role-title": "Science & Engineering Librarian",
-                            "start-date": {
-                                "year": {
-                                    "value": "2013"
-                                },
-                                "month": {
-                                    "value": "07"
-                                },
-                                "day": null
-                            },
-                            "end-date": null,
-                            "organization": {
-                                "name": "George Washington University",
-                                "address": {
-                                    "city": "Washington",
-                                    "region": "DC",
-                                    "country": "US"
-                                },
-                                "disambiguated-organization": {
-                                    "disambiguated-organization-identifier": "8367",
-                                    "disambiguation-source": "RINGGOLD"
-                                }
-                            },
-                            "source": {
-                                "source-orcid": {
-                                    "value": null,
-                                    "uri": "http://orcid.org/0000-0002-4192-3392",
-                                    "path": "0000-0002-4192-3392",
-                                    "host": "orcid.org"
-                                },
-                                "source-client-id": null,
-                                "source-name": {
-                                    "value": "Hope Lappen"
-                                },
-                                "source-date": {
-                                    "value": 1386877638912
-                                }
-                            },
-                            "created-date": {
-                                "value": 1386877638912
-                            },
-                            "last-modified-date": {
-                                "value": 1386877750045
-                            },
-                            "visibility": "PUBLIC",
-                            "put-code": "25495"
-                        }
-                    ]
-                }
-            }
-        }
+  "activities-summary": {
+    "educations": {
+        "education-summary": []
     }
+  }
 }
-        """)
+""")
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertEqual(0, len(self.graph))
 
     def test_education(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": {
-            "affiliations": {
-                "affiliation": [
-                    {
-                        "type": "EDUCATION",
-                        "department-name": "Neurosciences",
-                        "role-title": "PhD",
-                        "start-date": {
-                            "year": {
-                                "value": "1995"
-                            },
-                            "month" : {
-                              "value" : "06"
-                            },
-                            "day" : {
-                              "value" : "11"
-                            }
-                        },
-                        "end-date": {
-                            "year": {
-                                "value": "1997"
-                            },
-                            "month" : {
-                              "value" : "07"
-                            },
-                            "day" : {
-                              "value" : "03"
-                            }
-                        },
-                        "organization": {
-                            "name": "Stanford University School of Medicine",
-                            "address": {
-                                "city": "Stanford",
-                                "region": "California",
-                                "country": "US"
-                            },
-                            "disambiguated-organization": null
-                        },
-                        "source": {
-                            "source-orcid": {
-                                "value": null,
-                                "uri": "http://orcid.org/0000-0001-5109-3700",
-                                "path": "0000-0001-5109-3700",
-                                "host": "orcid.org"
-                            },
-                            "source-client-id": null,
-                            "source-name": {
-                                "value": "Laurel L Haak"
-                            },
-                            "source-date": {
-                                "value": 1385568459467
-                            }
-                        },
-                        "created-date": {
-                            "value": 1385568459467
-                        },
-                        "last-modified-date": {
-                            "value": 1406092743932
-                        },
-                        "visibility": "PUBLIC",
-                        "put-code": "1006"
-                    }
-                ]
+  "activities-summary": {
+    "educations": {
+      "last-modified-date": {
+        "value": 1486085029078
+      },
+      "education-summary": [
+        {
+          "created-date": {
+            "value": 1385568459467
+          },
+          "last-modified-date": {
+            "value": 1486085026897
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
             }
+          },
+          "department-name": "Neurosciences",
+          "role-title": "PhD",
+          "start-date": {
+            "year": {
+              "value": "1995"
+            },
+            "month": null,
+            "day": null
+          },
+          "end-date": {
+            "year": {
+              "value": "1997"
+            },
+            "month": null,
+            "day": null
+          },
+          "organization": {
+            "name": "Stanford University School of Medicine",
+            "address": {
+              "city": "Stanford",
+              "region": "California",
+              "country": "US"
+            },
+            "disambiguated-organization": null
+          },
+          "visibility": "PUBLIC",
+          "put-code": 1006,
+          "path": "/0000-0001-5109-3700/education/1006"
         }
+      ],
+      "path": "/0000-0001-5109-3700/educations"
     }
+  }  
 }
         """)
+        # Changed start date to 1995
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
         self.assertTrue(bool(self.graph.query("""
             ask where {
@@ -217,53 +135,51 @@ class TestAffiliations(TestCase):
     def test_education_minimal(self):
         orcid_profile = json.loads("""
 {
-    "message-version": "1.2",
-    "orcid-profile": {
-        "orcid-activities": {
-            "affiliations": {
-                "affiliation": [
-                    {
-                        "type": "EDUCATION",
-                        "department-name": null,
-                        "start-date": null,
-                        "end-date": null,
-                        "organization": {
-                            "name": "Stanford University School of Medicine",
-                            "address": {
-                                "city": "Stanford",
-                                "region": "California",
-                                "country": "US"
-                            },
-                            "disambiguated-organization": null
-                        },
-                        "source": {
-                            "source-orcid": {
-                                "value": null,
-                                "uri": "http://orcid.org/0000-0001-5109-3700",
-                                "path": "0000-0001-5109-3700",
-                                "host": "orcid.org"
-                            },
-                            "source-client-id": null,
-                            "source-name": {
-                                "value": "Laurel L Haak"
-                            },
-                            "source-date": {
-                                "value": 1385568459467
-                            }
-                        },
-                        "created-date": {
-                            "value": 1385568459467
-                        },
-                        "last-modified-date": {
-                            "value": 1406092743932
-                        },
-                        "visibility": "PUBLIC",
-                        "put-code": "1006"
-                    }
-                ]
+  "activities-summary": {
+    "educations": {
+      "last-modified-date": {
+        "value": 1486085029078
+      },
+      "education-summary": [
+        {
+          "created-date": {
+            "value": 1385568459467
+          },
+          "last-modified-date": {
+            "value": 1486085026897
+          },
+          "source": {
+            "source-orcid": {
+              "uri": "http://orcid.org/0000-0001-5109-3700",
+              "path": "0000-0001-5109-3700",
+              "host": "orcid.org"
+            },
+            "source-client-id": null,
+            "source-name": {
+              "value": "Laurel L Haak"
             }
+          },
+          "department-name": null,
+          "role-title": "PhD",
+          "start-date": null,
+          "end-date": null,
+          "organization": {
+            "name": "Stanford University School of Medicine",
+            "address": {
+              "city": "Stanford",
+              "region": "California",
+              "country": "US"
+            },
+            "disambiguated-organization": null
+          },
+          "visibility": "PUBLIC",
+          "put-code": 1006,
+          "path": "/0000-0001-5109-3700/education/1006"
         }
+      ],
+      "path": "/0000-0001-5109-3700/educations"
     }
+  }  
 }
         """)
         self.crosswalker.crosswalk(orcid_profile, self.person_uri, self.graph)
